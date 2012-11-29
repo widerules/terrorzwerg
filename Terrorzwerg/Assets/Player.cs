@@ -171,7 +171,8 @@ public class Player : MonoBehaviour {
 		GamePad.SetVibration(tmpIndex,0.3f,0.3f);
 		yield return new WaitForEndOfFrame();
 		GamePad.SetVibration(tmpIndex,0,0); // Set to 0 to stop vibration!!!
-		#endif			
+		#endif		
+		yield return false;
 	}
 	
 	IEnumerator SwitchOnLight()
