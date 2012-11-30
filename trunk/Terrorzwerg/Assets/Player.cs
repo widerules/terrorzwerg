@@ -24,12 +24,14 @@ public class Player : MonoBehaviour {
 	public bool HasFlag = false;
 	public float MaximumRunSpeed = 1;
 	public float LightTimeSeconds = 5;
+	public float LightReloadTimeSeconds = 2;
 	
 	public float Health = 100;
 	
 	public int Team = 0;
 	
 	public AudioClip SoundDie;
+	public AudioClip SoundCapture;
 	
 	Collider FlagCollider;
 	Vector3 FlagStartPos;
@@ -92,6 +94,10 @@ public class Player : MonoBehaviour {
 				FlagCollider = tmpHit.collider;
 				FlagStartPos = FlagCollider.transform.position;
 				HasFlag = true;
+				
+				// Play capture sound
+				AudioSource.PlayClipAtPoint(SoundCapture,Position);
+				
 			}
 		}
 		
@@ -180,6 +186,6 @@ public class Player : MonoBehaviour {
 		LightOn = true;
 		yield return new WaitForSeconds(LightTimeSeconds);
 		LightOn = false;
-		yield return new WaitForSeconds(2);
+		yield return new WaitForSeconds(LightReloadTimeSeconds);
 	}
 }

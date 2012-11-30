@@ -48,9 +48,26 @@ public class Game : MonoBehaviour {
 	
 	void OnGUI () {
 		string tmpInfoText;
-		if(IsGameRunning)
+		bool noFlag=true;
+		string stealingTeam = "";
+		
+		var tmpPlayers = FindObjectsOfType(typeof(Player));
+		foreach (Player tmpPlayer in tmpPlayers) {
+			if(tmpPlayer.HasFlag && noFlag){
+				noFlag=false;
+				stealingTeam = " "+tmpPlayer.Team.ToString()+" has";
+			}
+			else if(tmpPlayer.HasFlag){
+				stealingTeam = "s 1 and 2 have";
+			}
+		}
+
+		if(IsGameRunning && noFlag)
 		{
-			tmpInfoText = "Go get the flag!!!";
+			tmpInfoText = "Go get the treasure!!!";
+		}
+		else if(IsGameRunning && !noFlag){
+			tmpInfoText = "Team"+stealingTeam+" the treasure!";
 		}
 		else
 		{
