@@ -6,6 +6,9 @@ public class Game : MonoBehaviour {
 	bool IsGameRunning;
 	int WinningTeam;
 	
+	bool noFlag=true;
+	string stealingTeam = "";
+	
 	public bool SomeoneHasLightOn  {
 		get;
 		private set;
@@ -20,6 +23,8 @@ public class Game : MonoBehaviour {
 	void Update () {
 		var tmpPlayers = FindObjectsOfType(typeof(Player));
 		SomeoneHasLightOn = false;
+		noFlag=true;
+		stealingTeam="";
 		foreach (Player tmpPlayer in tmpPlayers) {
 			if(tmpPlayer.LightOn)
 			{
@@ -33,6 +38,13 @@ public class Game : MonoBehaviour {
 					}
 				}
 				
+			}
+			if(tmpPlayer.HasFlag && noFlag){
+				noFlag=false;
+				stealingTeam = " "+tmpPlayer.Team.ToString()+" has";
+			}
+			else if(tmpPlayer.HasFlag){
+				stealingTeam = "s 1 and 2 have";
 			}
 			if(tmpPlayer.HasFlag && !tmpPlayer.IsInEnemyTerritory)
 			{
@@ -48,19 +60,6 @@ public class Game : MonoBehaviour {
 	
 	void OnGUI () {
 		string tmpInfoText;
-		bool noFlag=true;
-		string stealingTeam = "";
-		
-		var tmpPlayers = FindObjectsOfType(typeof(Player));
-		foreach (Player tmpPlayer in tmpPlayers) {
-			if(tmpPlayer.HasFlag && noFlag){
-				noFlag=false;
-				stealingTeam = " "+tmpPlayer.Team.ToString()+" has";
-			}
-			else if(tmpPlayer.HasFlag){
-				stealingTeam = "s 1 and 2 have";
-			}
-		}
 
 		if(IsGameRunning && noFlag)
 		{
