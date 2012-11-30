@@ -6,6 +6,11 @@ public class Game : MonoBehaviour {
 	bool IsGameRunning;
 	int WinningTeam;
 	
+	public bool SomeoneHasLightOn  {
+		get;
+		private set;
+	}
+	
 	// Use this for initialization
 	void Start () {
 		IsGameRunning = true;
@@ -14,9 +19,11 @@ public class Game : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		var tmpPlayers = FindObjectsOfType(typeof(Player));
+		SomeoneHasLightOn = false;
 		foreach (Player tmpPlayer in tmpPlayers) {
 			if(tmpPlayer.LightOn)
 			{
+				SomeoneHasLightOn = true;
 				foreach(Player tmpEnemyPlayer in tmpPlayers)
 				{
 					float tmpDistance = Vector3.Distance(tmpPlayer.Position, tmpEnemyPlayer.Position);
