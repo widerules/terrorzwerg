@@ -1,0 +1,19 @@
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 9.0c [nvd3dum.dll 9.18.13.697]
+    Renderer: NVIDIA GeForce GTX 285M     
+    Vendor:   NVIDIA
+    VRAM:     1005 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=0 DF24=0 INTZ=1 RAWZ=0 NULL=1 RESZ=0 SlowINTZ=0
+desktop: 1366x768 120Hz; virtual: 1366x768 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+Initialize engine version: 3.5.6f4
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\XInputDotNetPure.dll (this message is harmless)
+Loading C:\Users\Daniel\Documents\Uni\Game Design\Terrorzwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\XInputDotNetPure.dll into Unity Child Domain
+- Completed reload, in  0.086 seconds
