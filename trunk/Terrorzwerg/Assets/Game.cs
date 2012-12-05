@@ -12,7 +12,8 @@ public class Game : MonoBehaviour {
 	bool playerConn=false;
 	bool noFlag=true;
 	string stealingTeam = "";
-
+	
+	int LastPlayerTeam = 1;
 	
 	System.Collections.Generic.List<NetworkPlayer> nPlayers=new System.Collections.Generic.List<NetworkPlayer>();
 	public Player basePlayer;
@@ -83,6 +84,8 @@ public class Game : MonoBehaviour {
 		{
 			tmpInfoText = "Team " + WinningTeam + " won!";
 		}
+		//tmpInfoText = ipadress;
+		
 		GUI.Label(new Rect(Screen.width/2 - 100,10,200,30), tmpInfoText);
 		
 	}
@@ -122,5 +125,19 @@ public class Game : MonoBehaviour {
 		nPlayers.Add(player);
 		Player tmpPl  = (Player)Instantiate(basePlayer, new Vector3(0,0,0), Quaternion.identity);
 		tmpPl.nPlayer = player;
+		
+		Vector2 tmpRandPos = Random.insideUnitCircle*2;
+		if(LastPlayerTeam == 0)
+		{
+			tmpPl.Team = Player.eTeam.Red;
+			tmpPl.StartPosition = new Vector3(22,0,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
+		}
+		else
+		{
+			tmpPl.Team = Player.eTeam.Blue;
+			tmpPl.StartPosition = new Vector3(-22,0,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
+		}
+		
+		LastPlayerTeam = 1-LastPlayerTeam;
 	}
 }
