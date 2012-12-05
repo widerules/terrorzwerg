@@ -6,8 +6,16 @@ public class Game : MonoBehaviour {
 	bool IsGameRunning;
 	Player.eTeam WinningTeam;
 	
+	string ipadress;
+	string port;
+	
+	bool playerConn=false;
 	bool noFlag=true;
 	string stealingTeam = "";
+
+	
+	System.Collections.Generic.List<NetworkPlayer> nPlayers=new System.Collections.Generic.List<NetworkPlayer>();
+	public Player basePlayer;
 	
 	public bool SomeoneHasLightOn  {
 		get;
@@ -17,6 +25,9 @@ public class Game : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		IsGameRunning = true;
+		Network.InitializeServer(16,6666);
+		ipadress = Network.player.ipAddress;
+	
 	}
 	
 	// Update is called once per frame
@@ -73,5 +84,43 @@ public class Game : MonoBehaviour {
 			tmpInfoText = "Team " + WinningTeam + " won!";
 		}
 		GUI.Label(new Rect(Screen.width/2 - 100,10,200,30), tmpInfoText);
+		
+	}
+	
+	public void SendHealth(int Health,NetworkPlayer player){
+		
+		networkView.RPC("SetHealth",player,Health);
+	}	
+	
+	[RPC]
+	void SetHealth(int Health){
+		
+	}
+	
+	[RPC]
+	void MovePlayer(float x, float y,float light,NetworkMessageInfo nmi){
+		var tmpPlayers = FindObjectsOfType(typeof(Player));
+		foreach(Player tmpPlayer in tmpPlayers){
+			if(tmpPlayer.nPlayer==nmi.sender){
+				tmpPlayer.xAxis = x;
+				tmpPlayer.yAxis = y;
+				tmpPlayer.LightButton=light;
+				networkView.RPC("SetPlayerPosition",nmi.sender,tmpPlayer.Position,tmpPlayer.vibrate);
+				tmpPlayer.vibrate=false;
+			}
+		}
+	}
+	
+	[RPC]
+	void SetPlayerPosition(Vector3 iPosition,bool vibrate){
+		
+	}
+
+	
+	void OnPlayerConnected(NetworkPlayer player){
+		playerConn=true;
+		nPlayers.Add(player);
+		Player tmpPl  = (Player)Instantiate(basePlayer, new Vector3(0,0,0), Quaternion.identity);
+		tmpPl.nPlayer = player;
 	}
 }

@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
 	public Vector3 Position;
 	bool vLightOn;
 	public Light UnityLight;
+	Game gameScript;
 	
 	public bool LightOn {
 		get {
@@ -33,6 +34,8 @@ public class Player : MonoBehaviour {
 	public float LightTimeSeconds = 5;
 	public float LightReloadTimeSeconds = 2;
 	
+	public NetworkPlayer nPlayer;
+	
 	public float Health = 100;
 	
 	public eTeam Team = eTeam.Blue;
@@ -49,6 +52,11 @@ public class Player : MonoBehaviour {
 	public Coin BaseCoin;
 	float CoinDropRateDelayInSeconds = 2;
 	
+	public float xAxis;
+	public float yAxis;
+	public float LightButton;
+	public bool vibrate;
+	
 	// Use this for initialization
 	void Start () {
 		Position = StartPosition;
@@ -63,13 +71,15 @@ public class Player : MonoBehaviour {
 			UnityLight.color = new Color(0.8f,0.5f,0.5f,1.0f);
 			TeamNumber = 1;
 		}
+		gameScript=(Game)FindObjectOfType(typeof(Game));	
+				
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
-		var tmpHorizontal = Input.GetAxis("Horizontal_" + TeamNumber);
-		var tmpVertical = Input.GetAxis("Vertical_" + TeamNumber);
+		var tmpHorizontal = xAxis;
+		var tmpVertical = yAxis;
 		
 		Vector3 tmpOldPos = Position;
 		Vector3 tmpMovement = new Vector3(tmpHorizontal, 0, tmpVertical);
@@ -157,7 +167,7 @@ public class Player : MonoBehaviour {
 		
 		
 		
-		if(!LightOn && Input.GetAxis("Light_" + TeamNumber) > 0.5f && !HasFlag)
+		if(!LightOn && LightButton > 0.5f && !HasFlag)
 		{
 			StartCoroutine(SwitchOnLight());
 		}
@@ -169,12 +179,13 @@ public class Player : MonoBehaviour {
 	public void DoDamage(float iAmount)
 	{
 		Health -= iAmount;
-		
+		gameScript.SendHealth((int)Health,nPlayer);
 		if(Health <= 0)
 		{
 			StartCoroutine(Die());	
 		}
 	}
+	
 	
 	IEnumerator Die()
 	{
@@ -192,7 +203,7 @@ public class Player : MonoBehaviour {
 		yield return new WaitForSeconds(2);
 		Position = StartPosition;
 		Health = 100;
-		
+		gameScript.SendHealth((int)Health,nPlayer);
 		enabled = true;
 	}
 	
@@ -210,7 +221,10 @@ public class Player : MonoBehaviour {
 	
 	IEnumerator CollisionResponse()
 	{
-		#if UNITY_STANDALONE_WIN
+		
+		vibrate=true;
+		
+		#if UNITY_STANDALONE_WIN		
 		XInputDotNetPure.PlayerIndex tmpIndex = PlayerIndex.One;
 		if(TeamNumber == 1)
 			tmpIndex = PlayerIndex.Two;
