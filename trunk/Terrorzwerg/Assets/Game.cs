@@ -4,7 +4,7 @@ using System.Collections;
 public class Game : MonoBehaviour {
 	
 	bool IsGameRunning;
-	int WinningTeam;
+	Player.eTeam WinningTeam;
 	
 	bool noFlag=true;
 	string stealingTeam = "";
@@ -53,7 +53,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 	
-	void GameOver(int iWinningTeam){
+	void GameOver(Player.eTeam iWinningTeam){
 		WinningTeam = iWinningTeam;
 		IsGameRunning = false;
 	}

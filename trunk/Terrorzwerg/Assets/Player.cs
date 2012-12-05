@@ -6,6 +6,12 @@ using XInputDotNetPure;
 #endif
 
 public class Player : MonoBehaviour {
+	public enum eTeam
+	{
+		Blue,
+		Red
+	}
+	
 	public Vector3 StartPosition;
 	public Vector3 Position;
 	bool vLightOn;
@@ -23,34 +29,63 @@ public class Player : MonoBehaviour {
 	public bool IsInEnemyTerritory = false;
 	public bool HasFlag = false;
 	public float MaximumRunSpeed = 1;
+	public float MaximumRunSpeedWithTreasure = 0.7f;
 	public float LightTimeSeconds = 5;
 	public float LightReloadTimeSeconds = 2;
 	
 	public float Health = 100;
 	
-	public int Team = 0;
+	public eTeam Team = eTeam.Blue;
+	int TeamNumber;
+	
 	
 	public AudioClip SoundDie;
 	public AudioClip SoundCapture;
+	public AudioClip SoundDropCoin;
 	
 	Collider FlagCollider;
 	Vector3 FlagStartPos;
 	
+	public Coin BaseCoin;
+	float CoinDropRateDelayInSeconds = 2;
+	
 	// Use this for initialization
 	void Start () {
 		Position = StartPosition;
+		
+		if(Team == eTeam.Blue)
+		{
+			UnityLight.color = new Color(0.5f,0.5f,0.8f,1.0f);
+			TeamNumber = 0;
+		}
+		else
+		{
+			UnityLight.color = new Color(0.8f,0.5f,0.5f,1.0f);
+			TeamNumber = 1;
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
-		var tmpHorizontal = Input.GetAxis("Horizontal_" + Team);
-		var tmpVertical = Input.GetAxis("Vertical_" + Team);
+		var tmpHorizontal = Input.GetAxis("Horizontal_" + TeamNumber);
+		var tmpVertical = Input.GetAxis("Vertical_" + TeamNumber);
 		
 		Vector3 tmpOldPos = Position;
 		Vector3 tmpMovement = new Vector3(tmpHorizontal, 0, tmpVertical);
 		Vector3 tmpDirection = tmpMovement.normalized;
-		float tmpSpeed = Mathf.Sqrt(tmpHorizontal*tmpHorizontal + tmpVertical*tmpVertical) * MaximumRunSpeed * Time.deltaTime;
+		
+		float tmpRunSpeed = 1.0f;
+		if(HasFlag)
+		{
+			tmpRunSpeed = MaximumRunSpeedWithTreasure;
+		}
+		else
+		{
+			tmpRunSpeed = MaximumRunSpeed;	
+		}
+		
+		float tmpSpeed = Mathf.Sqrt(tmpHorizontal*tmpHorizontal + tmpVertical*tmpVertical) * tmpRunSpeed * Time.deltaTime;
 		
 		tmpMovement = tmpDirection * tmpSpeed;
 		
@@ -89,7 +124,7 @@ public class Player : MonoBehaviour {
 		if(!HasFlag && Physics.Raycast(tmpOldPos, Position-tmpOldPos, out tmpHit, (Position-tmpOldPos).magnitude, layerMask))
 		{
 			
-	        if(tmpHit.collider.gameObject.CompareTag("Flag_" + (1-Team)))
+	        if(tmpHit.collider.gameObject.CompareTag("Flag_" + (1-TeamNumber)))
 			{
 				FlagCollider = tmpHit.collider;
 				FlagStartPos = FlagCollider.transform.position;
@@ -98,20 +133,22 @@ public class Player : MonoBehaviour {
 				// Play capture sound
 				AudioSource.PlayClipAtPoint(SoundCapture,Position);
 				
+							
+				// Drop coins.
+				StartCoroutine(DropCoins());
 			}
 		}
 		
 		// Set flag position.
 		if(HasFlag && FlagCollider != null){	
 			FlagCollider.transform.position = new Vector3(Position.x,FlagCollider.transform.position.y, Position.z);
-			
 		}
 		
 		// Set player model position.
 		transform.position = Position;
 		
 		// Check enemy territory.
-		if(Team == 0 && Position.x > -5 || Team == 1 && Position.x < 5){
+		if(Team == eTeam.Blue && Position.x > -5 || Team == eTeam.Red && Position.x < 5){
 			IsInEnemyTerritory = true;
 		}
 		else {
@@ -120,7 +157,7 @@ public class Player : MonoBehaviour {
 		
 		
 		
-		if(!LightOn && Input.GetAxis("Light_" + Team) > 0.5f)
+		if(!LightOn && Input.GetAxis("Light_" + TeamNumber) > 0.5f && !HasFlag)
 		{
 			StartCoroutine(SwitchOnLight());
 		}
@@ -158,13 +195,25 @@ public class Player : MonoBehaviour {
 		
 		enabled = true;
 	}
+	
+	IEnumerator DropCoins()
+	{
+		while(HasFlag && FlagCollider != null)
+		{
+			yield return new WaitForSeconds(CoinDropRateDelayInSeconds);
+			AudioSource.PlayClipAtPoint(SoundDropCoin, Position);
+			
+			Instantiate(BaseCoin, Position, Quaternion.identity);
+		}
+	}
 
+	
 	IEnumerator CollisionResponse()
 	{
 		#if UNITY_STANDALONE_WIN
-		XInputDotNetPure.PlayerIndex tmpIndex = PlayerIndex.Two;
-		if(Team == 1)
-			tmpIndex = PlayerIndex.One;
+		XInputDotNetPure.PlayerIndex tmpIndex = PlayerIndex.One;
+		if(TeamNumber == 1)
+			tmpIndex = PlayerIndex.Two;
 		
 		GamePad.SetVibration(tmpIndex,0.3f,0.3f);
 		yield return new WaitForEndOfFrame();
