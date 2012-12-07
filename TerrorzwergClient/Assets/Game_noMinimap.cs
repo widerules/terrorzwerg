@@ -118,6 +118,12 @@ public class Game_noMinimap : MonoBehaviour {
 	{
 		
 	}
+	
+	[RPC]
+	void SetHealth(int iHealth)
+	{
+		//Health = iHealth;
+	}
 
 	[RPC]
 	void SetPlayerPosition(Vector3 iPosition, bool iCollided)
