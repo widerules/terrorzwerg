@@ -24,6 +24,8 @@ public class Game_noMinimap : MonoBehaviour
     void Start()
     {
 		ConnectionIP=GameData.instance.ipAdress;
+		
+		ConnectToServer(ConnectionIP);
     }
 
     // Update is called once per frame
@@ -63,13 +65,6 @@ public class Game_noMinimap : MonoBehaviour
         {
             GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 100));
 
-            ConnectionIP = GUI.TextField(new Rect(5, 10, 250, 80), ConnectionIP);
-
-            if (GUI.Button(new Rect(5, 30, 250, 80), "Connect to Server"))
-            {
-                ConnectToServer(ConnectionIP);
-            }
-
             GUI.Label(new Rect(5, 80, 190, 20), InfoString);
 
             GUI.EndGroup();
@@ -90,9 +85,9 @@ public class Game_noMinimap : MonoBehaviour
     void OnConnectedToServer()
     {
         InfoString = "Connection Succeeded!";
-        InGame = true;
         StartCoroutine(UpdateNetwork());
 		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
+		InfoString = "Connected to "+GameData.instance.playerId +" - you are in Team "+GameData.instance.playerId;
     }
 
     IEnumerator UpdateNetwork()
@@ -135,15 +130,21 @@ public class Game_noMinimap : MonoBehaviour
             StartCoroutine(CollisionResponse());
         }
     }
+	
 	[RPC]
 	void SetPlayerTeam(int team){
 		
 	}
-
+	
+	[RPC]
+	void GameStarted(){
+		InGame=true;
+	}
+	
     IEnumerator CollisionResponse()
     {
         Handheld.Vibrate();
-        yield return new WaitForEndOfFrame();
+        yield return WaitForSeconds(1.0f);
         yield return false;
     }
 
