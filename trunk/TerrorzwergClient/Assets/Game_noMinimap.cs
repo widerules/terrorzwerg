@@ -63,7 +63,7 @@ public class Game_noMinimap : MonoBehaviour
     {
         if (!InGame)
         {
-            GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 100));
+            GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 400, 100));
 
             GUI.Label(new Rect(5, 80, 400, 20), InfoString);
 
@@ -85,9 +85,13 @@ public class Game_noMinimap : MonoBehaviour
     void OnConnectedToServer()
     {
 		InfoString = "Connected to "+GameData.instance.ipAdress +" - you are in Team "+GameData.instance.playerId;
+
 		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
 
     }
+	void OnDisconnectedFromServer(NetworkDisconnection info) {
+		Application.LoadLevel("Game_Menu");
+	}
 
     IEnumerator UpdateNetwork()
     {
@@ -140,6 +144,11 @@ public class Game_noMinimap : MonoBehaviour
 		InfoString ="Game Starts";
 		InGame=true;
 		StartCoroutine(UpdateNetwork());
+	}
+	
+	[RPC]
+	void GameOver(int WinningTeam){
+		GameData.instance.WinningTeam=WinningTeam;
 	}
 	
     IEnumerator CollisionResponse()
