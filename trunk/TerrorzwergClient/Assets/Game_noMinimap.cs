@@ -23,7 +23,7 @@ public class Game_noMinimap : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
+		ConnectionIP=GameData.instance.ipAdress;
     }
 
     // Update is called once per frame
@@ -92,6 +92,7 @@ public class Game_noMinimap : MonoBehaviour
         InfoString = "Connection Succeeded!";
         InGame = true;
         StartCoroutine(UpdateNetwork());
+		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
     }
 
     IEnumerator UpdateNetwork()
@@ -134,6 +135,10 @@ public class Game_noMinimap : MonoBehaviour
             StartCoroutine(CollisionResponse());
         }
     }
+	[RPC]
+	void SetPlayerTeam(int team){
+		
+	}
 
     IEnumerator CollisionResponse()
     {
