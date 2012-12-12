@@ -11,7 +11,6 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     string qrText;
 	string IpAdress="";
 	string Player="";
-    string bla = "";
 
     // Use this for initialization
     void Start()
