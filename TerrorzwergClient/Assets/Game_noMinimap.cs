@@ -148,7 +148,7 @@ public class Game_noMinimap : MonoBehaviour
 	
 	[RPC]
 	void GameOver(int WinningTeam){
-		GameData.instance.WinningTeam=WinningTeam;
+		GameData.instance.winningTeam=WinningTeam;
 	}
 	
     IEnumerator CollisionResponse()
