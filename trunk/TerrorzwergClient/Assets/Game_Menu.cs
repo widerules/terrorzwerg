@@ -57,7 +57,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 			if(GameData.instance.winningTeam==GameData.instance.playerId){
 					teamWon="Your Team Won";
 			}
-			GUI.Label(new Rect(10,10,400,20), teamWon);
+			GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50,400,20), teamWon);
 		}
 
     }
