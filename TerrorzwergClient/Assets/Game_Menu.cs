@@ -9,6 +9,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     bool isFrameFormatSet;
     Image cameraFeed;
     string qrText;
+	string IpAdress="";
+	string Player="";
     string bla = "";
 
     // Use this for initialization
@@ -49,7 +51,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
     void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 200, 20), "Hover over QR code: " + qrText + bla);
+        GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress+" "+ GameData.instance.playerId);
 
     }
 
