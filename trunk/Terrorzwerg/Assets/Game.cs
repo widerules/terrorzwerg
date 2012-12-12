@@ -35,7 +35,11 @@ public class Game : MonoBehaviour {
 	public Player basePlayer;
     System.Collections.Generic.Dictionary<NetworkPlayer, Player> Players = new System.Collections.Generic.Dictionary<NetworkPlayer,Player>();
 
+    public float MaxPlayerConnectionTime = 10;
+    public float MaxGameOverTime = 10;
+
     float PlayerConnectionTime = 10;
+    float GameOverTime = 10;
     Texture2D TextureLogPlayer0;
     Texture2D TextureLogPlayer1;
 
@@ -152,24 +156,45 @@ public class Game : MonoBehaviour {
 			}
 			if(tmpPlayer.HasFlag && !tmpPlayer.IsInEnemyTerritory)
 			{
-				GameOver(tmpPlayer.Team);
+                EndGame(tmpPlayer.Team);
 			}
         }
     }
 
     void UpdateGameOver()
     {
-
+        GameOverTime -= Time.deltaTime;
+        if (GameOverTime < 0)
+        {
+            PlayerConnectionTime = MaxPlayerConnectionTime;            
+            DisconnectAllPlayers();
+            GameState = eGameState.Menu;
+        }
     }
 
     void StartNewGame()
     {
+        // Reset level.
+        var tmpCoins = FindObjectsOfType(typeof(Coin));
+        foreach (Coin tmpCoin in tmpCoins)
+        {
+            Destroy(tmpCoin.gameObject);
+        }
+        var tmpFlag = GameObject.FindGameObjectsWithTag("Flag_0")[0];
+        tmpFlag.transform.position = new Vector3(-20, 0, 0);
+        tmpFlag = GameObject.FindGameObjectsWithTag("Flag_1")[0];
+        tmpFlag.transform.position = new Vector3(20, 0, 0);
 
+        GameState = eGameState.InGame;
+        networkView.RPC("GameStarted", RPCMode.All);
     }
 
-	void GameOver(Player.eTeam iWinningTeam){
-		WinningTeam = iWinningTeam;
+	void EndGame(Player.eTeam iWinningTeam){
+        GameOverTime = MaxGameOverTime; 
+        WinningTeam = iWinningTeam;
         GameState = eGameState.GameOver;
+        networkView.RPC("GameOver", RPCMode.All, (int)iWinningTeam);
+        RemoveAllPlayers();
 	}
 	
 	void OnGUI () {
@@ -203,13 +228,13 @@ public class Game : MonoBehaviour {
 
         GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
 
-        GUI.BeginGroup(new Rect(Screen.width / 2 - 300, 100, 270, 290), "Player 1");
-        GUI.Label(new Rect(7, 0, 256, 25), "Player 1");
+        GUI.BeginGroup(new Rect(Screen.width / 2 - 400, 100, 270, 290), "Team 1");
+        GUI.Label(new Rect(7, 0, 256, 25), "Team 1");
         GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer0);
         GUI.EndGroup();
 
-        GUI.BeginGroup(new Rect(Screen.width / 2 + 44, 100, 270, 290), "Player 2");
-        GUI.Label(new Rect(7, 0, 256, 25), "Player 2"); 
+        GUI.BeginGroup(new Rect(Screen.width / 2 + 144, 100, 270, 290), "Team 2");
+        GUI.Label(new Rect(7, 0, 256, 25), "Team 2"); 
         GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer1);
         GUI.EndGroup();
     }
@@ -233,7 +258,9 @@ public class Game : MonoBehaviour {
 
     void OnGUIGameOver()
     {
-
+        GUI.Label(new Rect(10, 10, 400, 20), "The game is over.");
+        GUI.Label(new Rect(10, 30, 400, 20), "Team " + WinningTeam.ToString() + " has won!!!");
+        GUI.Label(new Rect(10, 50, 400, 20), "New game starts in: " + (int)GameOverTime + " seconds...");
     }
 
     #region NetworkStuff
@@ -248,16 +275,15 @@ public class Game : MonoBehaviour {
 	
 	[RPC]
 	void MovePlayer(float x, float y, float light, NetworkMessageInfo nmi){
-		var tmpPlayers = FindObjectsOfType(typeof(Player));
-		foreach(Player tmpPlayer in tmpPlayers){
-			if(tmpPlayer.nPlayer==nmi.sender){
-				tmpPlayer.xAxis = x;
-				tmpPlayer.yAxis = y;
-				tmpPlayer.LightButton=light;
-				networkView.RPC("SetPlayerPosition",nmi.sender,tmpPlayer.Position,tmpPlayer.vibrate);
-				tmpPlayer.vibrate=false;
-			}
-		}
+        if (Players.ContainsKey(nmi.sender))
+        {
+            var tmpPlayer = Players[nmi.sender];
+            tmpPlayer.xAxis = x;
+            tmpPlayer.yAxis = y;
+            tmpPlayer.LightButton = light;
+            networkView.RPC("SetPlayerPosition", nmi.sender, tmpPlayer.Position, tmpPlayer.vibrate);
+            tmpPlayer.vibrate = false;
+        }
 	}
 	
 	[RPC]
@@ -285,7 +311,19 @@ public class Game : MonoBehaviour {
             }
         }
     }
-	
+
+    [RPC]
+    void GameStarted()
+    {
+
+    }
+
+    [RPC]
+    void GameOver(int iWinningTeam)
+    {
+
+    }
+
 	void OnPlayerConnected(NetworkPlayer iPlayer){
         Player tmpPlayer = (Player)Instantiate(basePlayer, new Vector3(0, -10000, 0), Quaternion.identity);
         tmpPlayer.nPlayer = iPlayer;
@@ -293,7 +331,7 @@ public class Game : MonoBehaviour {
         Players.Add(iPlayer, tmpPlayer);
 
         // Reset connection timer.
-        PlayerConnectionTime = 10;
+        PlayerConnectionTime = MaxPlayerConnectionTime;
     }
 
     void OnPlayerDisconnected(NetworkPlayer iPlayer)
@@ -307,10 +345,27 @@ public class Game : MonoBehaviour {
         }
 
         // Quit game if no player left.
-        if (Players.Count < 1)
+        if (GameState == eGameState.InGame && Players.Count < 1)
         {
-            GameState = eGameState.GameOver;
-            PlayerConnectionTime = 10;
+            EndGame(Player.eTeam.Blue);
+        }
+    }
+
+    void DisconnectAllPlayers()
+    {
+        foreach (var tmpPlayer in Players)
+        {
+            Network.CloseConnection(tmpPlayer.Key, true);
+        }
+
+        Players.Clear();
+    }
+
+    void RemoveAllPlayers()
+    {
+        foreach (var tmpPlayer in Players)
+        {
+            DestroyObject(tmpPlayer.Value.gameObject);
         }
     }
     #endregion

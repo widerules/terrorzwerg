@@ -112,11 +112,24 @@ public class Player : MonoBehaviour {
 		// Check obstacle collision.
 		RaycastHit tmpHit;
 		int layerMask = 1 << 8 | 1 << 10;
+        Vector3 tmpForwardDir = (Position - tmpOldPos).normalized;
+        Vector3 tmpLeftDir = tmpForwardDir + Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
+        Vector3 tmpRightDir = tmpForwardDir - Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
+        Ray tmpForward = new Ray(tmpOldPos, Position - tmpOldPos);
+        Ray tmpLeft = new Ray(tmpOldPos, tmpLeftDir);
+        Ray tmpRight = new Ray(tmpOldPos, tmpRightDir);
+
+        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpForwardDir*5 + new Vector3(0, 1, 0), Color.magenta, 0.2f, false);
+        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpLeftDir * 5 + new Vector3(0, 1, 0), Color.red, 0.2f, false);
+        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpRightDir * 5 + new Vector3(0, 1, 0), Color.green, 0.2f, false);
+
 		if(Physics.Raycast(tmpOldPos, Position-tmpOldPos, out tmpHit, (Position-tmpOldPos).magnitude, layerMask))
 		{
 			Position = tmpOldPos;
 			StartCoroutine(CollisionResponse());
 		}
+
+        
 		
 		//Check flag collision.
 		layerMask = 1 << 9;
