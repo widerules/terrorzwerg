@@ -9,8 +9,6 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     bool isFrameFormatSet;
     Image cameraFeed;
     string qrText;
-	string IpAdress="";
-	string Player="";
 
     // Use this for initialization
     void Start()
@@ -63,7 +61,6 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
     public void OnTrackablesUpdated()
     {
-        bla = "blub";
         try
         {
             if (!isFrameFormatSet)
