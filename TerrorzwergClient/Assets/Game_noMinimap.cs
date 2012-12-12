@@ -91,7 +91,7 @@ public class Game_noMinimap : MonoBehaviour
 
     }
 	void OnDisconnectedFromServer(NetworkDisconnection info) {
-		Application.LoadLevel("Game_Menu");
+		Application.LoadLevel("Client_Menu");
 	}
 
     IEnumerator UpdateNetwork()
