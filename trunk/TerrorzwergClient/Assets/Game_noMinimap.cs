@@ -6,11 +6,12 @@ public class Game_noMinimap : MonoBehaviour
     NetworkViewID NetID;
     public int Health = 100;
 
-    string ConnectionIP = "77.80.49.197"; //"131.130.238.217";
+    string ConnectionIP = "0.0.0.0"; //"131.130.238.217";
     string InfoString = "";
 
     bool InGame = false;
-
+	bool currColl = false;
+	
     public GameObject Player;
 
     int StrikeIndex = -1;
@@ -128,7 +129,7 @@ public class Game_noMinimap : MonoBehaviour
     [RPC]
     void SetPlayerPosition(Vector3 iPosition, bool iCollided)
     {
-        if (iCollided)
+        if (iCollided && !currColl)
         {
             StartCoroutine(CollisionResponse());
         }
@@ -154,7 +155,9 @@ public class Game_noMinimap : MonoBehaviour
     IEnumerator CollisionResponse()
     {
         Handheld.Vibrate();
+        currColl=true;
         yield return new WaitForSeconds(1.0f);
+		currColl=false;
         yield return false;
     }
 
