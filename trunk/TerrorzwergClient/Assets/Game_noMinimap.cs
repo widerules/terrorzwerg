@@ -27,7 +27,7 @@ public class Game_noMinimap : MonoBehaviour
 		ConnectionIP=GameData.instance.ipAdress;
 		
 		ConnectToServer(ConnectionIP);
-    	InfoString="Connecting ... "
+    	InfoString="Connecting ... ";
 	}
 
     // Update is called once per frame
