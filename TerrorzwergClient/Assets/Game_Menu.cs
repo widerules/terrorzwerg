@@ -52,6 +52,13 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     void OnGUI()
     {
         GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress+" "+ GameData.instance.playerId);
+		if(GameData.instance.winningTeam!=-1){
+			string teamWon="Your Team lost";
+			if(GameData.instance.winningTeam==GameData.instance.playerId){
+					teamWon="Your Team Won";
+			}
+			GUI.Label(new Rect(10,10,400,20), teamWon);
+		}
 
     }
 
