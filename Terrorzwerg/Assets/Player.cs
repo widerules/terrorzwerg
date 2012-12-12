@@ -249,6 +249,6 @@ public class Player : MonoBehaviour {
 		LightOn = true;
 		yield return new WaitForSeconds(LightTimeSeconds);
 		LightOn = false;
-		yield return new WaitForSeconds(LightReloadTimeSeconds);
+		//yield return new WaitForSeconds(LightReloadTimeSeconds);
 	}
 }

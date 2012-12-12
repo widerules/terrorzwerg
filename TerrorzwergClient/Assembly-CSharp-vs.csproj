@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_5_0;UNITY_3_5;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_WEBCAM;ENABLE_MICROPHONE;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW;ENABLE_SUBSTANCE</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_5_6;UNITY_3_5;UNITY_EDITOR;ENABLE_PROFILER;UNITY_ANDROID;ENABLE_GENERICS;ENABLE_TERRAIN;ENABLE_WEBCAM;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -37,15 +37,51 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity_3/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity_3/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\ARStuff\QRCamera\_Script\CameraImageAccess.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\CameraDevice.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\DataSet.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\DataSetLoadBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\DataSetTrackableBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\DefaultInitializationErrorHandler.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\DefaultTrackableEventHandler.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\ITrackableEventHandler.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\ITrackerEventHandler.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\IVirtualButtonEventHandler.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\Image.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\ImageTargetBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\ImageTracker.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\MarkerBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\MarkerTracker.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\MaskOutBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\MultiTargetBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCAR.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCARBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCARMacros.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCARManager.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCARRenderer.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\QCARRuntimeUtilities.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\TrackableBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\Tracker.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\TrackerManager.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\TurnOffBehaviour.cs" />
+     <Compile Include="Assets\ARStuff\Qualcomm Augmented Reality\Scripts\VirtualButtonBehaviour.cs" />
      <Compile Include="Assets\Game.cs" />
+     <Compile Include="Assets\Game_Menu.cs" />
      <Compile Include="Assets\Game_noMinimap.cs" />
+     <None Include="Assets\ARStuff\License_Readme.txt" />
+     <None Include="Assets\ARStuff\license.txt" />
+     <None Include="Assets\ARStuff\Qualcomm Augmented Reality\Shaders\DepthMask.shader" />
+     <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
+ <Reference Include="newzxing">
+ <HintPath>Assets\ARStuff\QRCamera\_Plugin\newzxing.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

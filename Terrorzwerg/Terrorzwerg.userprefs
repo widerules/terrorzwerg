@@ -1,11 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Game.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Menu.cs">
     <Files>
-      <File FileName="Assets\Particles\Sparkle.cs" Line="25" Column="5" />
-      <File FileName="Assets\Game.cs" Line="12" Column="17" />
-      <File FileName="Assets\Player.cs" Line="61" Column="17" />
-      <File FileName="Assets\Coin\Coin.cs" Line="10" Column="3" />
+      <File FileName="Assets\Game.cs" Line="26" Column="27" />
+      <File FileName="Assets\Menu.cs" Line="44" Column="40" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

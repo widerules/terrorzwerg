@@ -3,11 +3,18 @@ using System.Collections;
 
 public class Game : MonoBehaviour {
 	
-	bool IsGameRunning;
+	public bool IsGameRunning;
 	Player.eTeam WinningTeam;
 	
 	string ipadress;
-	string port;
+    public string IPAddress
+    {
+        get { return ipadress; }
+        private set { ipadress = value; }
+    }
+
+    
+    string port;
 	
 	bool playerConn=false;
 	bool noFlag=true;
@@ -25,14 +32,17 @@ public class Game : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		IsGameRunning = true;
+		IsGameRunning = false;
 		Network.InitializeServer(16,6666);
 		ipadress = Network.player.ipAddress;
-	
+	    
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        if (!IsGameRunning)
+            return;
+
 		var tmpPlayers = FindObjectsOfType(typeof(Player));
 		SomeoneHasLightOn = false;
 		noFlag=true;
@@ -75,7 +85,7 @@ public class Game : MonoBehaviour {
 
 		if(IsGameRunning && noFlag)
 		{
-			tmpInfoText = "Go get the treasure!!!";
+			tmpInfoText = "Go get the treasure!!! (" + ipadress + ")";
 		}
 		else if(IsGameRunning && !noFlag){
 			tmpInfoText = "Team"+stealingTeam+" the treasure!";
@@ -130,12 +140,12 @@ public class Game : MonoBehaviour {
 		if(LastPlayerTeam == 0)
 		{
 			tmpPl.Team = Player.eTeam.Red;
-			tmpPl.StartPosition = new Vector3(22,0,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
+			tmpPl.StartPosition = new Vector3(22,1,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
 		}
 		else
 		{
 			tmpPl.Team = Player.eTeam.Blue;
-			tmpPl.StartPosition = new Vector3(-22,0,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
+			tmpPl.StartPosition = new Vector3(-22,1,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
 		}
 		
 		LastPlayerTeam = 1-LastPlayerTeam;
