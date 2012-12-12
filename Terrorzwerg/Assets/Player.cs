@@ -59,20 +59,9 @@ public class Player : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		Position = StartPosition;
+        SetPositionAndTeam(StartPosition, Team);
 		
-		if(Team == eTeam.Blue)
-		{
-			UnityLight.color = new Color(0.5f,0.5f,0.8f,1.0f);
-			TeamNumber = 0;
-		}
-		else
-		{
-			UnityLight.color = new Color(0.8f,0.5f,0.5f,1.0f);
-			TeamNumber = 1;
-		}
-		gameScript=(Game)FindObjectOfType(typeof(Game));	
-				
+		gameScript=(Game)FindObjectOfType(typeof(Game));					
 	}
 	
 	// Update is called once per frame
@@ -185,7 +174,23 @@ public class Player : MonoBehaviour {
 			StartCoroutine(Die());	
 		}
 	}
-	
+
+    public void SetPositionAndTeam(Vector3 iPosition, eTeam iTeam)
+    {
+        StartPosition = iPosition;
+        Position = iPosition;
+        Team = iTeam;
+        if (Team == eTeam.Blue)
+        {
+            UnityLight.color = new Color(0.5f, 0.5f, 0.8f, 1.0f);
+            TeamNumber = 0;
+        }
+        else
+        {
+            UnityLight.color = new Color(0.8f, 0.5f, 0.5f, 1.0f);
+            TeamNumber = 1;
+        }
+    }
 	
 	IEnumerator Die()
 	{

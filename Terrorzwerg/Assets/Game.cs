@@ -1,9 +1,23 @@
 using UnityEngine;
 using System.Collections;
+using com.google.zxing.qrcode;
+using com.google.zxing.common;
 
 public class Game : MonoBehaviour {
-	
-	public bool IsGameRunning;
+
+    public enum eGameState
+    {
+        Menu,
+        InGame,
+        GameOver
+    }
+    private eGameState vGameState;
+    public eGameState GameState
+    {
+        get { return vGameState; }
+        private set { vGameState = value; }
+    }
+    
 	Player.eTeam WinningTeam;
 	
 	string ipadress;
@@ -12,19 +26,19 @@ public class Game : MonoBehaviour {
         get { return ipadress; }
         private set { ipadress = value; }
     }
-
-    
+ 
     string port;
-	
-	bool playerConn=false;
+
 	bool noFlag=true;
 	string stealingTeam = "";
 	
-	int LastPlayerTeam = 1;
-	
-	System.Collections.Generic.List<NetworkPlayer> nPlayers=new System.Collections.Generic.List<NetworkPlayer>();
 	public Player basePlayer;
-	
+    System.Collections.Generic.Dictionary<NetworkPlayer, Player> Players = new System.Collections.Generic.Dictionary<NetworkPlayer,Player>();
+
+    float PlayerConnectionTime = 10;
+    Texture2D TextureLogPlayer0;
+    Texture2D TextureLogPlayer1;
+
 	public bool SomeoneHasLightOn  {
 		get;
 		private set;
@@ -32,18 +46,86 @@ public class Game : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		IsGameRunning = false;
-		Network.InitializeServer(16,6666);
-		ipadress = Network.player.ipAddress;
-	    
+        GameState = eGameState.Menu;
+
+        InitializeServer();
+        InitializeMenu();
 	}
-	
+
+    private void InitializeMenu()
+    {
+        TextureLogPlayer0 = CreateQR(IPAddress + ";0", 256);
+        TextureLogPlayer1 = CreateQR(IPAddress + ";1", 256);
+    }
+
+    Texture2D CreateQR(string iQRString, int iSize)
+    {
+        Texture2D tmpTex = new Texture2D(iSize, iSize);
+
+        QRCodeWriter tmpWriter = new QRCodeWriter();
+        ByteMatrix tmpMatrix = tmpWriter.encode(iQRString, com.google.zxing.BarcodeFormat.QR_CODE, iSize, iSize);
+
+        Color32[] tmpColor = new Color32[iSize * iSize];
+
+        for (int i = 0; i < iSize; i++)
+        {
+            for (int j = 0; j < iSize; j++)
+            {
+                int tmpPos = j * iSize + i;
+                byte tmpCol = tmpMatrix.Array[i][j] == 0 ? (byte)0 : (byte)255;
+                tmpColor[tmpPos].r = tmpColor[tmpPos].g = tmpColor[tmpPos].b = tmpCol;
+                tmpColor[tmpPos].a = 255;
+            }
+        }
+
+        tmpTex.SetPixels32(tmpColor);
+        tmpTex.Apply();
+
+        return tmpTex;
+    }
+
+    void InitializeServer()
+    {
+        // TODO change to NAT Server.
+        Network.InitializeServer(16, 6666);
+        ipadress = Network.player.ipAddress;	    
+    }
+
 	// Update is called once per frame
 	void Update () {
-        if (!IsGameRunning)
-            return;
+        switch (vGameState)
+        {
+            case eGameState.Menu:
+                UpdateMenu();
+                break;
+            case eGameState.InGame:
+                UpdateGame();
+                break;
+            case eGameState.GameOver:
+                UpdateGameOver();
+                break;
+            default:
+                break;
+        }
+	}
 
-		var tmpPlayers = FindObjectsOfType(typeof(Player));
+
+    void UpdateMenu()
+    {
+        if (Players.Count >= 2)
+        {
+            PlayerConnectionTime -= Time.deltaTime;
+        }
+        if (PlayerConnectionTime <= 0)
+        {
+            PlayerConnectionTime = 0;
+            StartNewGame();
+        }
+    }
+
+    void UpdateGame()
+    {
+        var tmpPlayers = FindObjectsOfType(typeof(Player));
 		SomeoneHasLightOn = false;
 		noFlag=true;
 		stealingTeam="";
@@ -72,37 +154,91 @@ public class Game : MonoBehaviour {
 			{
 				GameOver(tmpPlayer.Team);
 			}
-		}
-	}
-	
+        }
+    }
+
+    void UpdateGameOver()
+    {
+
+    }
+
+    void StartNewGame()
+    {
+
+    }
+
 	void GameOver(Player.eTeam iWinningTeam){
 		WinningTeam = iWinningTeam;
-		IsGameRunning = false;
+        GameState = eGameState.GameOver;
 	}
 	
 	void OnGUI () {
-		string tmpInfoText;
-
-		if(IsGameRunning && noFlag)
-		{
-			tmpInfoText = "Go get the treasure!!! (" + ipadress + ")";
-		}
-		else if(IsGameRunning && !noFlag){
-			tmpInfoText = "Team"+stealingTeam+" the treasure!";
-		}
-		else
-		{
-			tmpInfoText = "Team " + WinningTeam + " won!";
-		}
-		//tmpInfoText = ipadress;
-		
-		GUI.Label(new Rect(Screen.width/2 - 100,10,200,30), tmpInfoText);
+        switch (vGameState)
+        {
+            case eGameState.Menu:
+                OnGUIMenu();
+                break;
+            case eGameState.InGame:
+                OnGUIGame();
+                break;
+            case eGameState.GameOver:
+                OnGUIGameOver();
+                break;
+            default:
+                break;
+        }
 		
 	}
-	
-	public void SendHealth(int Health,NetworkPlayer player){
-		
-		networkView.RPC("SetHealth",player,Health);
+
+    void OnGUIMenu()
+    {
+        if (Players.Count >= 2)
+        {
+            GUI.Label(new Rect(10, 10, 400, 20), "Time left to connect: " + (int)PlayerConnectionTime + " seconds...");
+        }
+        else
+        {
+            GUI.Label(new Rect(10, 10, 400, 20), "Please connect by hovering over the QR codes.");
+        }
+
+        GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
+
+        GUI.BeginGroup(new Rect(Screen.width / 2 - 300, 100, 270, 290), "Player 1");
+        GUI.Label(new Rect(7, 0, 256, 25), "Player 1");
+        GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer0);
+        GUI.EndGroup();
+
+        GUI.BeginGroup(new Rect(Screen.width / 2 + 44, 100, 270, 290), "Player 2");
+        GUI.Label(new Rect(7, 0, 256, 25), "Player 2"); 
+        GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer1);
+        GUI.EndGroup();
+    }
+
+    void OnGUIGame()
+    {
+        string tmpInfoText;
+
+        if (noFlag)
+        {
+            tmpInfoText = "Go get the treasure!!! (" + ipadress + ")";
+        }
+        else
+        {
+            tmpInfoText = "Team" + stealingTeam + " the treasure!";
+        }
+        //tmpInfoText = ipadress;
+
+        GUI.Label(new Rect(Screen.width / 2 - 100, 10, 200, 30), tmpInfoText);
+    }
+
+    void OnGUIGameOver()
+    {
+
+    }
+
+    #region NetworkStuff
+    public void SendHealth(int Health, NetworkPlayer player){	
+		networkView.RPC("SetHealth", player, Health);
 	}	
 	
 	[RPC]
@@ -111,7 +247,7 @@ public class Game : MonoBehaviour {
 	}
 	
 	[RPC]
-	void MovePlayer(float x, float y,float light,NetworkMessageInfo nmi){
+	void MovePlayer(float x, float y, float light, NetworkMessageInfo nmi){
 		var tmpPlayers = FindObjectsOfType(typeof(Player));
 		foreach(Player tmpPlayer in tmpPlayers){
 			if(tmpPlayer.nPlayer==nmi.sender){
@@ -125,29 +261,57 @@ public class Game : MonoBehaviour {
 	}
 	
 	[RPC]
-	void SetPlayerPosition(Vector3 iPosition,bool vibrate){
+	void SetPlayerPosition(Vector3 iPosition, bool vibrate){
 		
 	}
 
+    [RPC]
+    void SetPlayerTeam(int iTeam, NetworkMessageInfo tmpNetworkInfo)
+    {
+        Player.eTeam tmpTeam = (Player.eTeam)iTeam;
+        var tmpPlayers = FindObjectsOfType(typeof(Player));
+
+        Vector2 tmpRandPos = Random.insideUnitCircle * 2;
+        Player tmpPlayer = null;
+        if(Players.TryGetValue(tmpNetworkInfo.sender, out tmpPlayer))
+        {
+            if(tmpTeam == Player.eTeam.Blue)
+            {
+                tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, 0) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+            }
+            else
+            {
+                tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, 0) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+            }
+        }
+    }
 	
-	void OnPlayerConnected(NetworkPlayer player){
-		playerConn=true;
-		nPlayers.Add(player);
-		Player tmpPl  = (Player)Instantiate(basePlayer, new Vector3(0,0,0), Quaternion.identity);
-		tmpPl.nPlayer = player;
-		
-		Vector2 tmpRandPos = Random.insideUnitCircle*2;
-		if(LastPlayerTeam == 0)
-		{
-			tmpPl.Team = Player.eTeam.Red;
-			tmpPl.StartPosition = new Vector3(22,1,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
-		}
-		else
-		{
-			tmpPl.Team = Player.eTeam.Blue;
-			tmpPl.StartPosition = new Vector3(-22,1,0) + new Vector3(tmpRandPos.x,0,tmpRandPos.y);
-		}
-		
-		LastPlayerTeam = 1-LastPlayerTeam;
-	}
+	void OnPlayerConnected(NetworkPlayer iPlayer){
+        Player tmpPlayer = (Player)Instantiate(basePlayer, new Vector3(0, -10000, 0), Quaternion.identity);
+        tmpPlayer.nPlayer = iPlayer;
+
+        Players.Add(iPlayer, tmpPlayer);
+
+        // Reset connection timer.
+        PlayerConnectionTime = 10;
+    }
+
+    void OnPlayerDisconnected(NetworkPlayer iPlayer)
+    {
+        // Remove player from list and destroy him.
+        if (Players.ContainsKey(iPlayer))
+        {
+            var tmpPlayer = Players[iPlayer];
+            DestroyObject(tmpPlayer.gameObject);
+            Players.Remove(iPlayer);
+        }
+
+        // Quit game if no player left.
+        if (Players.Count < 1)
+        {
+            GameState = eGameState.GameOver;
+            PlayerConnectionTime = 10;
+        }
+    }
+    #endregion
 }
