@@ -150,6 +150,13 @@ public class Game_noMinimap : MonoBehaviour
 	[RPC]
 	void GameOver(int WinningTeam){
 		GameData.instance.winningTeam=WinningTeam;
+		InGame=false;
+		if(WinningTeam==GameData.instance.playerId){
+			InfoString = "Your Team Won!";
+		}
+		else{
+			InfoString = "Your Team LOST!";
+		}
 	}
 	
     IEnumerator CollisionResponse()
