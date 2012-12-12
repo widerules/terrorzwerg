@@ -75,6 +75,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             if (!string.IsNullOrEmpty(tempText))
             {
                 qrText = tempText;
+				GameData.instance.ipAdress=qrText.Split(";")[0];
+				GameData.instance.playerId=qrText.Split(";")[1];
             }
         }
     }
