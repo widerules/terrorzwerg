@@ -1,12 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Game_noMinimap.cs">
-    <Files>
-      <File FileName="Assets\Game_noMinimap.cs" Line="95" Column="78" />
-      <File FileName="Assets\Game_Menu.cs" Line="81" Column="10" />
-      <File FileName="Assets\GameData.cs" Line="9" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
