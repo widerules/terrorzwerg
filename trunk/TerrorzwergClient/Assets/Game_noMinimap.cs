@@ -65,7 +65,7 @@ public class Game_noMinimap : MonoBehaviour
         {
             GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 100));
 
-            GUI.Label(new Rect(5, 80, 190, 20), InfoString);
+            GUI.Label(new Rect(5, 80, 400, 20), InfoString);
 
             GUI.EndGroup();
         }
@@ -84,7 +84,7 @@ public class Game_noMinimap : MonoBehaviour
 
     void OnConnectedToServer()
     {
-		InfoString = "Connected to "+GameData.instance.playerId +" - you are in Team "+GameData.instance.playerId;
+		InfoString = "Connected to "+GameData.instance.ipAdress +" - you are in Team "+GameData.instance.playerId;
 		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
 
     }
