@@ -5,7 +5,7 @@ public class Game : MonoBehaviour {
 	NetworkViewID NetID;
 	public int Health = 100;
 	
-	string ConnectionIP = "77.80.49.197"; //"131.130.238.217";
+	string ConnectionIP = "131.130.109.157"; //"77.80.49.197"; //"131.130.238.217";
 	string InfoString = "";
 	
 	bool InGame = false;
