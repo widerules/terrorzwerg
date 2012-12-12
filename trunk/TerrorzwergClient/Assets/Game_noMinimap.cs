@@ -84,10 +84,9 @@ public class Game_noMinimap : MonoBehaviour
 
     void OnConnectedToServer()
     {
-        InfoString = "Connection Succeeded!";
-        StartCoroutine(UpdateNetwork());
-		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
 		InfoString = "Connected to "+GameData.instance.playerId +" - you are in Team "+GameData.instance.playerId;
+		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
+
     }
 
     IEnumerator UpdateNetwork()
@@ -138,13 +137,15 @@ public class Game_noMinimap : MonoBehaviour
 	
 	[RPC]
 	void GameStarted(){
+		InfoString ="Game Starts";
 		InGame=true;
+		StartCoroutine(UpdateNetwork());
 	}
 	
     IEnumerator CollisionResponse()
     {
         Handheld.Vibrate();
-        yield return WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(1.0f);
         yield return false;
     }
 
