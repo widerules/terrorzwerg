@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
 	public Vector3 Position;
 	bool vLightOn;
 	public Light UnityLight;
+    public Light CollisionLight;
 	Game gameScript;
 	
 	public bool LightOn {
@@ -40,7 +41,8 @@ public class Player : MonoBehaviour {
 	
 	public eTeam Team = eTeam.Blue;
 	int TeamNumber;
-	
+
+    public bool DebugMode;
 	
 	public AudioClip SoundDie;
 	public AudioClip SoundCapture;
@@ -66,7 +68,11 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+        if (DebugMode)
+        {
+            xAxis = Input.GetAxis("Horizontal_" + TeamNumber);
+            yAxis = Input.GetAxis("Vertical_" + TeamNumber);
+        }
 		var tmpHorizontal = xAxis;
 		var tmpVertical = yAxis;
 		
@@ -83,62 +89,101 @@ public class Player : MonoBehaviour {
 		{
 			tmpRunSpeed = MaximumRunSpeed;	
 		}
-		
-		float tmpSpeed = Mathf.Sqrt(tmpHorizontal*tmpHorizontal + tmpVertical*tmpVertical) * tmpRunSpeed * Time.deltaTime;
+
+        float tmpSpeed = Mathf.Abs(Mathf.Sqrt(tmpHorizontal * tmpHorizontal + tmpVertical * tmpVertical) - 0.2f) * 1.25f * tmpRunSpeed * Time.deltaTime;
 		
 		tmpMovement = tmpDirection * tmpSpeed;
 		
-		Position += tmpMovement;
+        //Position += tmpMovement;
 
 		
-		// Check field bounds.
-		if(Position.x < -25){
-			Position.x = -25;
-			StartCoroutine(CollisionResponse());
-		}
-		if(Position.x > 25){
-			Position.x = 25;
-			StartCoroutine(CollisionResponse());
-		}
-		if(Position.z < -10){
-			Position.z = -10;
-			StartCoroutine(CollisionResponse());
-		}
-		if(Position.z > 10){
-			Position.z = 10;
-			StartCoroutine(CollisionResponse());
-		}
+        //// Check field bounds.
+        //if(Position.x < -25){
+        //    Position.x = -25;
+        //    StartCoroutine(CollisionResponse());
+        //}
+        //if(Position.x > 25){
+        //    Position.x = 25;
+        //    StartCoroutine(CollisionResponse());
+        //}
+        //if(Position.z < -10){
+        //    Position.z = -10;
+        //    StartCoroutine(CollisionResponse());
+        //}
+        //if(Position.z > 10){
+        //    Position.z = 10;
+        //    StartCoroutine(CollisionResponse());
+        //}
 		
-		// Check obstacle collision.
-		RaycastHit tmpHit;
-		int layerMask = 1 << 8 | 1 << 10;
-        Vector3 tmpForwardDir = (Position - tmpOldPos).normalized;
-        Vector3 tmpLeftDir = tmpForwardDir + Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
-        Vector3 tmpRightDir = tmpForwardDir - Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
-        Ray tmpForward = new Ray(tmpOldPos, Position - tmpOldPos);
-        Ray tmpLeft = new Ray(tmpOldPos, tmpLeftDir);
-        Ray tmpRight = new Ray(tmpOldPos, tmpRightDir);
+        //// Check obstacle collision.
+        RaycastHit tmpHitCenter;
+        //RaycastHit tmpHitLeft;
+        //RaycastHit tmpHitRight;
+        int layerMask = 1 << 8 | 1 << 10;
+        //Vector3 tmpForwardDir = (Position - tmpOldPos).normalized;
+        //Vector3 tmpLeftDir = tmpForwardDir + Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
+        //Vector3 tmpRightDir = tmpForwardDir - Vector3.Cross(tmpForwardDir, Vector3.up) * 0.1f;
+        //Ray tmpForward = new Ray(tmpOldPos, Position - tmpOldPos);
+        //Ray tmpLeft = new Ray(tmpOldPos, tmpLeftDir);
+        //Ray tmpRight = new Ray(tmpOldPos, tmpRightDir);
 
-        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpForwardDir*5 + new Vector3(0, 1, 0), Color.magenta, 0.2f, false);
-        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpLeftDir * 5 + new Vector3(0, 1, 0), Color.red, 0.2f, false);
-        Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpRightDir * 5 + new Vector3(0, 1, 0), Color.green, 0.2f, false);
+        //Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpForwardDir * 5 + new Vector3(0, 1, 0), Color.magenta, 0.2f, false);
+        //Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpLeftDir * 5 + new Vector3(0, 1, 0), Color.red, 0.2f, false);
+        //Debug.DrawLine(tmpOldPos + new Vector3(0, 1, 0), tmpOldPos + tmpRightDir * 5 + new Vector3(0, 1, 0), Color.green, 0.2f, false);
 
-		if(Physics.Raycast(tmpOldPos, Position-tmpOldPos, out tmpHit, (Position-tmpOldPos).magnitude, layerMask))
-		{
-			Position = tmpOldPos;
-			StartCoroutine(CollisionResponse());
-		}
+        //bool tmpLHit, tmpCHit, tmpRHit;
+        //tmpCHit = Physics.Raycast(tmpOldPos, tmpForwardDir, out tmpHitCenter, (Position - tmpOldPos).magnitude, layerMask);
+        //tmpLHit = Physics.Raycast(tmpOldPos, tmpLeftDir, out tmpHitLeft, (Position - tmpOldPos).magnitude, layerMask);
+        //tmpRHit = Physics.Raycast(tmpOldPos, tmpRightDir, out tmpHitRight, (Position - tmpOldPos).magnitude, layerMask);
 
-        
+        //if (tmpCHit)
+        //{
+        //    if(!tmpLHit && !tmpRHit)
+        //    {
+        //        Position = tmpOldPos;
+        //    }
+        //    else if(tmpLHit && !tmpRHit)
+        //    {
+        //        var tmpAllowedDir = tmpHitLeft.point - tmpHitCenter.point;
+        //        tmpAllowedDir = -tmpAllowedDir.normalized;
+        //        Position += tmpAllowedDir * tmpSpeed;
+        //    }
+        //    else if (!tmpLHit && tmpRHit)
+        //    {
+        //        var tmpAllowedDir = tmpHitRight.point - tmpHitCenter.point;
+        //        tmpAllowedDir = -tmpAllowedDir.normalized;
+        //        Position += tmpAllowedDir * tmpSpeed;
+        //    }
+        //    else
+        //    {
+        //        Vector3 tmpAllowedDir = Vector3.left;
+        //        if (tmpHitRight.distance < tmpHitLeft.distance)
+        //        {
+        //            tmpAllowedDir = tmpHitLeft.point - tmpHitCenter.point;
+        //        }
+        //        else
+        //        {
+        //            tmpAllowedDir = tmpHitRight.point - tmpHitCenter.point;
+        //        }
+
+        //        tmpAllowedDir = tmpAllowedDir.normalized;
+        //        Position += tmpAllowedDir * tmpSpeed;
+        //    }
+
+        //    StartCoroutine(CollisionResponse());
+        //}
+
+        rigidbody.AddForce(tmpMovement, ForceMode.Impulse);
+        Position = rigidbody.position;
 		
 		//Check flag collision.
 		layerMask = 1 << 9;
-		if(!HasFlag && Physics.Raycast(tmpOldPos, Position-tmpOldPos, out tmpHit, (Position-tmpOldPos).magnitude, layerMask))
+        if (!HasFlag && Physics.Raycast(tmpOldPos, Position - tmpOldPos, out tmpHitCenter, (Position - tmpOldPos).magnitude, layerMask))
 		{
-			
-	        if(tmpHit.collider.gameObject.CompareTag("Flag_" + (1-TeamNumber)))
+
+            if (tmpHitCenter.collider.gameObject.CompareTag("Flag_" + (1 - TeamNumber)))
 			{
-				FlagCollider = tmpHit.collider;
+                FlagCollider = tmpHitCenter.collider;
 				FlagStartPos = FlagCollider.transform.position;
 				HasFlag = true;
 				
@@ -166,9 +211,12 @@ public class Player : MonoBehaviour {
 		else {
 			IsInEnemyTerritory = false;			
 		}
-		
-		
-		
+
+
+        if (DebugMode)
+        {
+            LightButton = Input.GetAxis("Light_" + TeamNumber);
+        }
 		if(!LightOn && LightButton > 0.5f && !HasFlag)
 		{
 			StartCoroutine(SwitchOnLight());
@@ -192,6 +240,7 @@ public class Player : MonoBehaviour {
     {
         StartPosition = iPosition;
         Position = iPosition;
+        rigidbody.position = iPosition;
         Team = iTeam;
         if (Team == eTeam.Blue)
         {
@@ -220,6 +269,7 @@ public class Player : MonoBehaviour {
 		
 		yield return new WaitForSeconds(2);
 		Position = StartPosition;
+        rigidbody.position = StartPosition;
 		Health = 100;
 		gameScript.SendHealth((int)Health,nPlayer);
 		enabled = true;
@@ -236,11 +286,15 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+    void OnCollisionEnter(Collision collision)
+    {
+        StartCoroutine(CollisionResponse());
+    }
 	
 	IEnumerator CollisionResponse()
 	{
 		
-		vibrate=true;
+		//vibrate=true;
 		
 		#if UNITY_STANDALONE_WIN		
 		XInputDotNetPure.PlayerIndex tmpIndex = PlayerIndex.One;
@@ -259,6 +313,24 @@ public class Player : MonoBehaviour {
 		yield return new WaitForEndOfFrame();
 		GamePad.SetVibration(tmpIndex,0,0); // Set to 0 to stop vibration!!!
 		#endif		
+
+        CollisionLight.intensity = 1;
+        yield return new WaitForEndOfFrame();
+        CollisionLight.intensity = 0.9f;
+        yield return new WaitForEndOfFrame(); 
+        CollisionLight.intensity = 1;
+        yield return new WaitForEndOfFrame();
+        CollisionLight.intensity = 0.8f;
+        yield return new WaitForSeconds(0.2f);
+        CollisionLight.intensity = 0.7f;
+        yield return new WaitForSeconds(0.2f);
+        CollisionLight.intensity = 0.4f;
+        yield return new WaitForSeconds(0.2f);
+        CollisionLight.intensity = 0.2f;
+        yield return new WaitForSeconds(0.2f);
+        CollisionLight.intensity = 0;
+
+
 		yield return false;
 	}
 	

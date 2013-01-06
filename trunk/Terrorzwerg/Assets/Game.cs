@@ -26,7 +26,10 @@ public class Game : MonoBehaviour {
         get { return ipadress; }
         private set { ipadress = value; }
     }
- 
+
+    public int Port = 5554;
+    public int MinimumPlayers = 1;
+
     string port;
 
 	bool noFlag=true;
@@ -43,6 +46,7 @@ public class Game : MonoBehaviour {
     Texture2D TextureLogPlayer0;
     Texture2D TextureLogPlayer1;
 
+
 	public bool SomeoneHasLightOn  {
 		get;
 		private set;
@@ -58,8 +62,8 @@ public class Game : MonoBehaviour {
 
     private void InitializeMenu()
     {
-        TextureLogPlayer0 = CreateQR(IPAddress + ";0", 256);
-        TextureLogPlayer1 = CreateQR(IPAddress + ";1", 256);
+        TextureLogPlayer0 = CreateQR(IPAddress + ":" + Port + ";0", 256);
+        TextureLogPlayer1 = CreateQR(IPAddress + ":" + Port + ";1", 256);
     }
 
     Texture2D CreateQR(string iQRString, int iSize)
@@ -91,7 +95,7 @@ public class Game : MonoBehaviour {
     void InitializeServer()
     {
         // TODO change to NAT Server.
-        Network.InitializeServer(16, 6666);
+        Network.InitializeServer(16, Port);
         ipadress = Network.player.ipAddress;	    
     }
 
@@ -116,7 +120,7 @@ public class Game : MonoBehaviour {
 
     void UpdateMenu()
     {
-        if (Players.Count >= 2)
+        if (Players.Count >= MinimumPlayers)
         {
             PlayerConnectionTime -= Time.deltaTime;
         }
@@ -263,6 +267,10 @@ public class Game : MonoBehaviour {
         GUI.Label(new Rect(10, 50, 400, 20), "New game starts in: " + (int)GameOverTime + " seconds...");
     }
 
+    void OnDestroy()
+    {
+        
+    }
     #region NetworkStuff
     public void SendHealth(int Health, NetworkPlayer player){	
 		networkView.RPC("SetHealth", player, Health);
