@@ -88,7 +88,7 @@ public class Game : MonoBehaviour {
 
 	void ConnectToServer (string iIP)
 	{
-		Network.Connect(iIP, 6666);
+        Network.Connect(iIP, 6666);
 
 	}
 	

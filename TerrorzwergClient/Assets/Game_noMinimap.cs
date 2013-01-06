@@ -7,6 +7,7 @@ public class Game_noMinimap : MonoBehaviour
     public int Health = 100;
 
     string ConnectionIP = "0.0.0.0"; //"131.130.238.217";
+    int ConnectionPort = 6666;
     string InfoString = "";
 
     bool InGame = false;
@@ -24,9 +25,10 @@ public class Game_noMinimap : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-		ConnectionIP=GameData.instance.ipAdress;
-		
-		ConnectToServer(ConnectionIP);
+        ConnectionIP = GameData.instance.ipAdress;
+        ConnectionPort = GameData.instance.port;
+
+        ConnectToServer(ConnectionIP, ConnectionPort);
     	InfoString="Connecting ... ";
 	}
 
@@ -73,9 +75,9 @@ public class Game_noMinimap : MonoBehaviour
         }
     }
 
-    void ConnectToServer(string iIP)
+    void ConnectToServer(string iIP, int iPort)
     {
-        Network.Connect(iIP, 6666);
+        Network.Connect(iIP, iPort);
 
     }
 

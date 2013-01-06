@@ -46,16 +46,18 @@
   <ItemGroup>
      <Compile Include="Assets\Coin\Coin.cs" />
      <Compile Include="Assets\Game.cs" />
-     <Compile Include="Assets\Menu.cs" />
      <Compile Include="Assets\Particles\Sparkle.cs" />
      <Compile Include="Assets\Player.cs" />
+     <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
+     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
      <None Include="Assets\Sounds\Game\info.txt" />
      <None Include="Assets\Shaders\DoubleSidedDiffuse.shader" />
- <Reference Include="XInputDotNetPure">
- <HintPath>Assets\Plugins\XInputDotNetPure.dll</HintPath>
- </Reference>
+     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
  <Reference Include="newzxing">
  <HintPath>Assets\Plugins\newzxing.dll</HintPath>
+ </Reference>
+ <Reference Include="XInputDotNetPure">
+ <HintPath>Assets\Plugins\XInputDotNetPure.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

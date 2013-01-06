@@ -48,7 +48,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
     void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress+" "+ GameData.instance.playerId);
+        GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress + ":" + GameData.instance.port + " " + GameData.instance.playerId);
 		if(GameData.instance.winningTeam!=-1){
 			string teamWon="Your Team lost";
 			if(GameData.instance.winningTeam==GameData.instance.playerId){
@@ -80,8 +80,10 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             if (!string.IsNullOrEmpty(tempText))
             {
                 qrText = tempText;
-				GameData.instance.ipAdress=qrText.Split(';')[0];
-				GameData.instance.playerId=int.Parse(qrText.Split(';')[1]);
+                string AddressPart = qrText.Split(';')[0];
+                GameData.instance.ipAdress = AddressPart.Split(':')[0];
+                GameData.instance.port = int.Parse(AddressPart.Split(':')[1]);
+                GameData.instance.playerId = int.Parse(qrText.Split(';')[1]);
             }
         }
     }
