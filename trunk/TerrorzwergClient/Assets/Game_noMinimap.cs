@@ -21,6 +21,14 @@ public class Game_noMinimap : MonoBehaviour
     float StrikingMatchAxis = 0;
 
     public AudioClip SoundStrikeMatch;
+    public AudioClip SoundHurt;
+    public AudioClip[] SoundDie;
+
+    public Texture StrikingTexture;
+    public Texture TexPrepare_Red;
+    public Texture TexPrepare_Blue;
+    public Texture TexWon;
+    public Texture TexLost;
 
     // Use this for initialization
     void Start()
@@ -50,7 +58,6 @@ public class Game_noMinimap : MonoBehaviour
                     if (tmpLength > Screen.width * 0.3f)
                     {
                         StrikingMatchAxis = 1.0f;
-                        AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
                     }
                     Striking = false;
                 }
@@ -65,13 +72,35 @@ public class Game_noMinimap : MonoBehaviour
 
     void OnGUI()
     {
+        Rect tmpFull = new Rect(0, 0, Screen.width, Screen.height);
         if (!InGame)
         {
-            GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 400, 100));
 
-            GUI.Label(new Rect(5, 80, 400, 20), InfoString);
+            //GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 400, 100));
 
-            GUI.EndGroup();
+            //GUI.Label(new Rect(5, 80, 400, 20), InfoString);
+
+            //GUI.EndGroup();
+            if (GameData.instance.playerId == 0)
+            {
+                GUI.DrawTexture(tmpFull, TexPrepare_Blue);
+            }
+            else
+            {
+                GUI.DrawTexture(tmpFull, TexPrepare_Red);
+            }
+        }
+        else
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), StrikingTexture);
+        }
+        if (GameData.instance.winningTeam == GameData.instance.playerId)
+        {
+            GUI.DrawTexture(tmpFull, TexWon);
+        }
+        else if(GameData.instance.winningTeam != -1)
+        {
+            GUI.DrawTexture(tmpFull, TexLost);
         }
     }
 
@@ -142,7 +171,27 @@ public class Game_noMinimap : MonoBehaviour
 	void SetPlayerTeam(int team){
 		
 	}
-	
+
+    [RPC]
+    void PlayStrikingSound()
+    {
+        AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
+    }
+
+    [RPC]
+    void PlayHurtSound()
+    {
+        AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
+    }
+
+    [RPC]
+    void PlayDeathSound()
+    {
+        int tmpRand = Random.Range(0, SoundDie.Length);
+
+        AudioSource.PlayClipAtPoint(SoundDie[tmpRand], camera.transform.position, 1);
+    }
+
 	[RPC]
 	void GameStarted(){
 		InfoString ="Game Starts";
