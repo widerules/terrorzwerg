@@ -47,12 +47,13 @@
      <Compile Include="Assets\Coin\Coin.cs" />
      <Compile Include="Assets\Game.cs" />
      <Compile Include="Assets\Particles\Sparkle.cs" />
-     <Compile Include="Assets\Player.cs" />
+     <Compile Include="Assets\Player\Player.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
      <None Include="Assets\Sounds\Game\info.txt" />
      <None Include="Assets\Shaders\DoubleSidedDiffuse.shader" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
+     <None Include="Assets\Player\dwarf animation ranges.txt" />
  <Reference Include="newzxing">
  <HintPath>Assets\Plugins\newzxing.dll</HintPath>
  </Reference>

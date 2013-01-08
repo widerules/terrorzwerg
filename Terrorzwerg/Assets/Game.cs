@@ -45,7 +45,14 @@ public class Game : MonoBehaviour {
     float GameOverTime = 10;
     Texture2D TextureLogPlayer0;
     Texture2D TextureLogPlayer1;
-
+    public Texture2D MenuBackground;
+    public Texture2D MenuBlueWon;
+    public Texture2D MenuRedWon;
+    public Color QRCodeForecolor;
+    public Color QRCodeBackcolor;
+    public int QRCodeSize = 180;
+    public int QRDistance = 100;
+    public int QRHeight = 400;
 
 	public bool SomeoneHasLightOn  {
 		get;
@@ -62,8 +69,8 @@ public class Game : MonoBehaviour {
 
     private void InitializeMenu()
     {
-        TextureLogPlayer0 = CreateQR(IPAddress + ":" + Port + ";0", 256);
-        TextureLogPlayer1 = CreateQR(IPAddress + ":" + Port + ";1", 256);
+        TextureLogPlayer0 = CreateQR(IPAddress + ":" + Port + ";0", QRCodeSize);
+        TextureLogPlayer1 = CreateQR(IPAddress + ":" + Port + ";1", QRCodeSize);
     }
 
     Texture2D CreateQR(string iQRString, int iSize)
@@ -80,8 +87,16 @@ public class Game : MonoBehaviour {
             for (int j = 0; j < iSize; j++)
             {
                 int tmpPos = j * iSize + i;
-                byte tmpCol = tmpMatrix.Array[i][j] == 0 ? (byte)0 : (byte)255;
-                tmpColor[tmpPos].r = tmpColor[tmpPos].g = tmpColor[tmpPos].b = tmpCol;
+                if (tmpMatrix.Array[i][j] == 0)
+                {
+                    tmpColor[tmpPos] = QRCodeBackcolor;
+                }
+                else
+                {
+                    tmpColor[tmpPos] = QRCodeForecolor;
+                }
+                //byte tmpCol = tmpMatrix.Array[i][j] == 0 ? (byte)0 : (byte)255;
+                //tmpColor[tmpPos].r = tmpColor[tmpPos].g = tmpColor[tmpPos].b = tmpCol;
                 tmpColor[tmpPos].a = 255;
             }
         }
@@ -221,6 +236,8 @@ public class Game : MonoBehaviour {
 
     void OnGUIMenu()
     {
+        GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
+
         if (Players.Count >= 2)
         {
             GUI.Label(new Rect(10, 10, 400, 20), "Time left to connect: " + (int)PlayerConnectionTime + " seconds...");
@@ -232,14 +249,12 @@ public class Game : MonoBehaviour {
 
         GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
 
-        GUI.BeginGroup(new Rect(Screen.width / 2 - 400, 100, 270, 290), "Team 1");
-        GUI.Label(new Rect(7, 0, 256, 25), "Team 1");
-        GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer0);
+        GUI.BeginGroup(new Rect(Screen.width / 2 - QRCodeSize - QRDistance, QRHeight, 270, 290));
+        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer0);
         GUI.EndGroup();
 
-        GUI.BeginGroup(new Rect(Screen.width / 2 + 144, 100, 270, 290), "Team 2");
-        GUI.Label(new Rect(7, 0, 256, 25), "Team 2"); 
-        GUI.DrawTexture(new Rect(7, 27, 256, 256), TextureLogPlayer1);
+        GUI.BeginGroup(new Rect(Screen.width / 2 + QRDistance, QRHeight, 270, 290));
+        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer1);
         GUI.EndGroup();
     }
 
@@ -262,8 +277,16 @@ public class Game : MonoBehaviour {
 
     void OnGUIGameOver()
     {
-        GUI.Label(new Rect(10, 10, 400, 20), "The game is over.");
-        GUI.Label(new Rect(10, 30, 400, 20), "Team " + WinningTeam.ToString() + " has won!!!");
+        if (WinningTeam == Player.eTeam.Blue)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), MenuBlueWon);
+        }
+        else
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), MenuRedWon);
+        }
+        //GUI.Label(new Rect(10, 10, 400, 20), "The game is over.");
+        //GUI.Label(new Rect(10, 30, 400, 20), "Team " + WinningTeam.ToString() + " has won!!!");
         GUI.Label(new Rect(10, 50, 400, 20), "New game starts in: " + (int)GameOverTime + " seconds...");
     }
 
@@ -375,6 +398,35 @@ public class Game : MonoBehaviour {
         {
             DestroyObject(tmpPlayer.Value.gameObject);
         }
+    }
+
+
+    public void Player_PlayStrikingSound(NetworkPlayer iPlayer)
+    {
+        networkView.RPC("PlayStrikingSound", iPlayer, null);
+    }
+
+    public void Player_PlayHurtSound(NetworkPlayer iPlayer)
+    {
+        networkView.RPC("PlayHurtSound", iPlayer, null);
+    }
+    public void Player_PlayDeathSound(NetworkPlayer iPlayer)
+    {
+        networkView.RPC("PlayDeathSound", iPlayer, null);
+    }
+    [RPC]
+    void PlayStrikingSound()
+    {
+    }
+
+    [RPC]
+    void PlayHurtSound()
+    {
+    }
+
+    [RPC]
+    void PlayDeathSound()
+    {
     }
     #endregion
 }
