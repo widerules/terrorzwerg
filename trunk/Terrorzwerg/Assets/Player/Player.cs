@@ -61,7 +61,10 @@ public class Player : MonoBehaviour {
 	public float yAxis;
 	public float LightButton;
 	public bool vibrate;
-	
+    public bool IsDead;
+    public float ActualMovement;
+
+    float vWalkTime;
 	// Use this for initialization
 	void Start () {
         SetPositionAndTeam(StartPosition, Team);
@@ -93,69 +96,85 @@ public class Player : MonoBehaviour {
 			tmpRunSpeed = MaximumRunSpeed;	
 		}
 
-        float tmpCurrentRunSpeed = Mathf.Abs(Mathf.Sqrt(tmpHorizontal * tmpHorizontal + tmpVertical * tmpVertical) - 0.2f) * 1.25f * tmpRunSpeed;
-        float tmpSpeed = tmpCurrentRunSpeed * Time.deltaTime;
-		
-		tmpMovement = tmpDirection * tmpSpeed;
-
-        if (tmpMovement.magnitude > 0.01f)
+        if (!IsDead)
         {
-            //float tmpRotation = Vector2.Angle(-Vector2.up, new Vector2(-tmpMovement.x, tmpMovement.z));
-            float tmpRotation = Mathf.Rad2Deg * Mathf.Atan2(tmpMovement.x, tmpMovement.z) + 180;
-            Dwarf.transform.localRotation = Quaternion.Euler(0, tmpRotation, 0);
-            Dwarf.animation["walk"].speed = tmpCurrentRunSpeed / 10.0f; // 0.5f;
+            float tmpCurrentRunSpeed = Mathf.Clamp01(Mathf.Abs(Mathf.Sqrt(tmpHorizontal * tmpHorizontal + tmpVertical * tmpVertical) * 3f) - 0.3f) * tmpRunSpeed;
+            float tmpSpeed = tmpCurrentRunSpeed * Time.deltaTime;
 
-            if (!Dwarf.animation.IsPlaying("walk"))
+            tmpMovement = tmpDirection * tmpSpeed;
+
+            if (tmpMovement.magnitude > 0.01f)
             {
-                Dwarf.animation.Play("walk");
+                //float tmpRotation = Vector2.Angle(-Vector2.up, new Vector2(-tmpMovement.x, tmpMovement.z));
+                float tmpRotation = Mathf.Rad2Deg * Mathf.Atan2(tmpMovement.x, tmpMovement.z) + 180;
+                Dwarf.transform.localRotation = Quaternion.Euler(0, tmpRotation, 0);
+                Dwarf.animation["walk"].speed = tmpCurrentRunSpeed / 10.0f; // 0.5f;
+
+                if (!Dwarf.animation.IsPlaying("walk"))
+                {
+                    Dwarf.animation.Play("walk");
+                }
+                rigidbody.drag = 3;
             }
-            rigidbody.drag = 3;
-        }
-        else
-        {
-            if (!Dwarf.animation.IsPlaying("idle"))
+            else
             {
-                Dwarf.animation.Play("idle");
+                if (!Dwarf.animation.IsPlaying("idle"))
+                {
+                    Dwarf.animation.Play("idle");
+                }
+                rigidbody.drag = 30;
             }
-            rigidbody.drag = 30;
+
+            //// Check obstacle collision.
+            RaycastHit tmpHitCenter;
+            int layerMask = 1 << 8 | 1 << 10;
+
+            rigidbody.AddForce(tmpMovement, ForceMode.Impulse);
+            Position = rigidbody.position;
+
+            ActualMovement = (Position - tmpOldPos).magnitude;
+            if (ActualMovement > 0.01)
+            {
+                vWalkTime += Time.deltaTime * (tmpCurrentRunSpeed / 4.0f);
+                if (vWalkTime >= 0.25f)
+                {
+                    gameScript.Player_PlayWalkSound(nPlayer);
+                    vWalkTime = 0;
+                    // Debug.Log("Step");
+                }
+            }
+
+            //Check flag collision.
+            layerMask = 1 << 9;
+            if (!HasFlag && Physics.Raycast(tmpOldPos, Position - tmpOldPos, out tmpHitCenter, (Position - tmpOldPos).magnitude, layerMask))
+            {
+
+                if (tmpHitCenter.collider.gameObject.CompareTag("Flag_" + (1 - TeamNumber)))
+                {
+                    FlagCollider = tmpHitCenter.collider;
+                    FlagStartPos = FlagCollider.transform.position;
+                    HasFlag = true;
+
+                    // Play capture sound
+                    AudioSource.PlayClipAtPoint(SoundCapture, Position);
+
+
+                    // Drop coins.
+                    StartCoroutine(DropCoins());
+                }
+            }
+
+            // Set flag position.
+            if (HasFlag && FlagCollider != null)
+            {
+                FlagCollider.transform.localRotation = Quaternion.Euler(0, Dwarf.transform.localRotation.eulerAngles.y - 90, 0);
+                FlagCollider.transform.position = new Vector3(Position.x, Position.y + 0.5f, Position.z);
+            }
+
+            // Set player model position.
+            transform.position = Position;
         }
-       
-        //// Check obstacle collision.
-        RaycastHit tmpHitCenter;
-        int layerMask = 1 << 8 | 1 << 10;
 
-        rigidbody.AddForce(tmpMovement, ForceMode.Impulse);
-        Position = rigidbody.position;
-		
-		//Check flag collision.
-		layerMask = 1 << 9;
-        if (!HasFlag && Physics.Raycast(tmpOldPos, Position - tmpOldPos, out tmpHitCenter, (Position - tmpOldPos).magnitude, layerMask))
-		{
-
-            if (tmpHitCenter.collider.gameObject.CompareTag("Flag_" + (1 - TeamNumber)))
-			{
-                FlagCollider = tmpHitCenter.collider;
-				FlagStartPos = FlagCollider.transform.position;
-				HasFlag = true;
-				
-				// Play capture sound
-				AudioSource.PlayClipAtPoint(SoundCapture,Position);
-				
-							
-				// Drop coins.
-				StartCoroutine(DropCoins());
-			}
-		}
-		
-		// Set flag position.
-		if(HasFlag && FlagCollider != null){
-            FlagCollider.transform.localRotation = Quaternion.Euler(0, Dwarf.transform.localRotation.eulerAngles.y - 90, 0);
-            FlagCollider.transform.position = new Vector3(Position.x, Position.y + 0.5f, Position.z);
-		}
-		
-		// Set player model position.
-		transform.position = Position;
-		
 		// Check enemy territory.
 		if(Team == eTeam.Blue && Position.x > -5 || Team == eTeam.Red && Position.x < 5){
 			IsInEnemyTerritory = true;
@@ -182,8 +201,8 @@ public class Player : MonoBehaviour {
 	{
 		Health -= iAmount;
 		gameScript.SendHealth((int)Health,nPlayer);
-		if(Health <= 0)
-		{
+        if (Health <= 0 && !IsDead)
+        {
 			StartCoroutine(Die());	
 		}
 	}
@@ -214,8 +233,8 @@ public class Player : MonoBehaviour {
 	
 	IEnumerator Die()
 	{
+        IsDead = true;
         gameScript.Player_PlayDeathSound(nPlayer);
-		Position.y = -1000;
 		LightOn = false;
 		
 		if(HasFlag && FlagCollider != null)
@@ -225,13 +244,16 @@ public class Player : MonoBehaviour {
 			HasFlag = false;
 			FlagCollider = null;
 		}
-		
+        int tmpRand = Random.Range(0, 2);
+        Dwarf.animation.Play("die_" + tmpRand);
+
 		yield return new WaitForSeconds(2);
 		Position = StartPosition;
         rigidbody.position = StartPosition;
 		Health = 100;
 		gameScript.SendHealth((int)Health,nPlayer);
 		enabled = true;
+        IsDead = false;
 	}
 	
 	IEnumerator DropCoins()

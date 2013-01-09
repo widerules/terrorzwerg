@@ -36,6 +36,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         vDecodeBytes = new byte[UnityCamTex.width * UnityCamTex.height];
 
         InvokeRepeating("Autofocus", 1f, 2f);
+
+        GameData.instance.playerId = -1;
     }
     void Autofocus()
     {

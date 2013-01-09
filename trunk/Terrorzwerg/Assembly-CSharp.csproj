@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Coin\Coin.cs" />
+     <Compile Include="Assets\Field\ScrollLava.cs" />
      <Compile Include="Assets\Game.cs" />
      <Compile Include="Assets\Particles\Sparkle.cs" />
      <Compile Include="Assets\Player\Player.cs" />
