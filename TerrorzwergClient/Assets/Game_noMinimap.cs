@@ -33,6 +33,7 @@ public class Game_noMinimap : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        GameData.instance.winningTeam = -1;
         ConnectionIP = GameData.instance.ipAdress;
         ConnectionPort = GameData.instance.port;
 
