@@ -196,7 +196,7 @@ public class Game_noMinimap : MonoBehaviour
 	[RPC]
 	void PlayWalkSound(){
 		int tmpRand = Random.Range(0,SoundWalk.Length);
-		AudioSource.PlayClipAtPoint(SoundWalk[tmpRand],camera.transform.position,1);
+		AudioSource.PlayClipAtPoint(SoundWalk[tmpRand],camera.transform.position, 0.3f);
 	}
 
 	[RPC]

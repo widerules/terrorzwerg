@@ -48,12 +48,17 @@ public class Game : MonoBehaviour {
     public Texture2D MenuBackground;
     public Texture2D MenuBlueWon;
     public Texture2D MenuRedWon;
+
+    public Texture2D[] MenuNumerals;
+
     public Color QRCodeForecolor;
     public Color QRCodeBackcolor;
     public int QRCodeSize = 180;
     public int QRDistance = 100;
     public int QRHeight = 400;
 	public GameObject[] Obstacles;
+
+    public AudioClip Fanfare;
 
 	public bool SomeoneHasLightOn  {
 		get;
@@ -202,11 +207,14 @@ public class Game : MonoBehaviour {
         {
             Destroy(tmpCoin.gameObject);
         }
+
 		RandomizeObstacles();
         var tmpFlag = GameObject.FindGameObjectsWithTag("Flag_0")[0];
         tmpFlag.transform.position = new Vector3(-20, 0, 0);
+        tmpFlag.transform.localRotation = Quaternion.identity;
         tmpFlag = GameObject.FindGameObjectsWithTag("Flag_1")[0];
         tmpFlag.transform.position = new Vector3(20, 0, 0);
+        tmpFlag.transform.localRotation = Quaternion.identity;
 
         GameState = eGameState.InGame;
         networkView.RPC("GameStarted", RPCMode.All);
@@ -255,6 +263,7 @@ public class Game : MonoBehaviour {
 	}
 
 	void EndGame(Player.eTeam iWinningTeam){
+        AudioSource.PlayClipAtPoint(Fanfare, camera.transform.position, 1);
         GameOverTime = MaxGameOverTime; 
         WinningTeam = iWinningTeam;
         GameState = eGameState.GameOver;
@@ -284,16 +293,13 @@ public class Game : MonoBehaviour {
     {
         GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
 
-        if (Players.Count >= 2)
+        if (Players.Count >= MinimumPlayers)
         {
-            GUI.Label(new Rect(10, 10, 400, 20), "Time left to connect: " + (int)PlayerConnectionTime + " seconds...");
-        }
-        else
-        {
-            GUI.Label(new Rect(10, 10, 400, 20), "Please connect by hovering over the QR codes.");
+            int tmpTexId = Mathf.Clamp((int)PlayerConnectionTime, 0, (MenuNumerals.Length-1));
+            GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
         }
 
-        GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
+        //GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
 
         GUI.BeginGroup(new Rect(Screen.width / 2 - QRCodeSize - QRDistance, QRHeight, 270, 290));
         GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer0);
@@ -333,7 +339,9 @@ public class Game : MonoBehaviour {
         }
         //GUI.Label(new Rect(10, 10, 400, 20), "The game is over.");
         //GUI.Label(new Rect(10, 30, 400, 20), "Team " + WinningTeam.ToString() + " has won!!!");
-        GUI.Label(new Rect(10, 50, 400, 20), "New game starts in: " + (int)GameOverTime + " seconds...");
+
+        int tmpTexId = Mathf.Clamp((int)GameOverTime, 0, (MenuNumerals.Length - 1));
+        GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
     }
 
     void OnDestroy()
@@ -460,6 +468,12 @@ public class Game : MonoBehaviour {
     {
         networkView.RPC("PlayDeathSound", iPlayer, null);
     }
+
+    public void Player_PlayWalkSound(NetworkPlayer iPlayer)
+    {
+        networkView.RPC("PlayWalkSound", iPlayer, null);
+    }
+
     [RPC]
     void PlayStrikingSound()
     {
@@ -472,6 +486,12 @@ public class Game : MonoBehaviour {
 
     [RPC]
     void PlayDeathSound()
+    {
+    }
+
+
+    [RPC]
+    void PlayWalkSound()
     {
     }
     #endregion
