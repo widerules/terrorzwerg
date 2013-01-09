@@ -1,10 +1,13 @@
 using UnityEngine;
 using System.Collections;
 using com.google.zxing.qrcode;
+using System;
+using com.google.zxing;
+using com.google.zxing.common;
 
 public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 {
-
+    string vDebugText;
     string tempText;
     bool isFrameFormatSet;
     Image cameraFeed;
@@ -13,24 +16,31 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     public Texture TexMainMenuRed;
     public Texture TexMainMenuBlue;
     public Texture2D UnityCamTex;
+    public float UnityTexScale = 0.25f;
+    Color32[] vCamColors;
+    byte[] vDecodeBytes;
 
     // Use this for initialization
     void Start()
     {
+        QCARManager.Instance.DrawVideoBackground = false;
         QCARBehaviour qcarBehaviour = GetComponent<QCARBehaviour>();
-        QCARRenderer.Instance.SetVideoBackgroundConfig(new QCARRenderer.VideoBGCfgData(){ enabled = 0, position = new QCARRenderer.Vec2I(20,20), size = new QCARRenderer.Vec2I(100,100), synchronous = 0}); 
-        //QCARRenderer.Instance.
         if (qcarBehaviour)
         {
             qcarBehaviour.RegisterTrackerEventHandler(this);
         }
 
         isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
-        UnityCamTex = new Texture2D(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).width / 4, CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).height / 4);
+        UnityCamTex = new Texture2D((int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).width * UnityTexScale), (int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).height * UnityTexScale));
+        vCamColors = new Color32[UnityCamTex.width * UnityCamTex.height];
+        vDecodeBytes = new byte[UnityCamTex.width * UnityCamTex.height];
 
         InvokeRepeating("Autofocus", 1f, 2f);
     }
-
+    void Autofocus()
+    {
+        CameraDevice.Instance.SetFocusMode(CameraDevice.FocusMode.FOCUS_MODE_TRIGGERAUTO);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -60,53 +70,40 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         float tmpCamHeight = tmpCamWidth / tmpAspect;
         Rect tmpCam = new Rect(Screen.width/2-tmpCamWidth*0.5f, Screen.height/2-tmpCamHeight*0.25f, tmpCamWidth, tmpCamHeight);
         //GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress + ":" + GameData.instance.port + " " + GameData.instance.playerId);
-        if (GameData.instance.winningTeam != -1)
+        if (GameData.instance.playerId == 0)
         {
-            //if (GameData.instance.winningTeam == GameData.instance.playerId)
-            //{
-            //    GUI.DrawTexture(tmpFull, TexWon);
-            //}
-            //else
-            //{
-            //    GUI.DrawTexture(tmpFull, TexLost);
-            //}
-            //GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50,400,20), teamWon);
+            GUI.DrawTexture(tmpFull, TexMainMenuBlue);
+        }
+        else if (GameData.instance.playerId == 1)
+        {
+            GUI.DrawTexture(tmpFull, TexMainMenuRed);
         }
         else
         {
-            if (GameData.instance.playerId == 0)
-            {
-                GUI.DrawTexture(tmpFull, TexMainMenuBlue);
-            }
-            else if (GameData.instance.playerId == 1)
-            {
-                GUI.DrawTexture(tmpFull, TexMainMenuRed);
-            }
-            else
-            {
-                GUI.DrawTexture(tmpFull, TexMainMenu);
-            }
-            GUI.DrawTexture(tmpCam, UnityCamTex);
+            GUI.DrawTexture(tmpFull, TexMainMenu);
         }
+        GUI.DrawTexture(tmpCam, UnityCamTex);
+
+        //GUI.Label(new Rect(20, 20, 1000, 200), qrText);
 
     }
 
     void UpdateCamTex(Image iImage)
     {
-        Color32[] tmpColor = new Color32[UnityCamTex.width * UnityCamTex.height];
-
+        int tmpScale = (int)(1.0f / UnityTexScale);
         for (int i = 0; i < UnityCamTex.width; i++)
         {
             for (int j = 0; j < UnityCamTex.height; j++)
             {
                 int tmpUnityPos = j * UnityCamTex.width + i;
-                int tmpPos = (j * 4) * iImage.Width + (iImage.Width - i * 4);
+                int tmpPos = (j * tmpScale) * iImage.Width + (iImage.Width - i * tmpScale);
                 byte tmpCol = iImage.Pixels[tmpPos];
-                tmpColor[tmpUnityPos].r = tmpColor[tmpUnityPos].g = tmpColor[tmpUnityPos].b = tmpCol;
-                tmpColor[tmpUnityPos].a = 255;
+                vDecodeBytes[tmpUnityPos] = tmpCol;
+                vCamColors[tmpUnityPos].r = vCamColors[tmpUnityPos].g = vCamColors[tmpUnityPos].b = tmpCol;
+                vCamColors[tmpUnityPos].a = 255;
             }
         }
-        UnityCamTex.SetPixels32(tmpColor);
+        UnityCamTex.SetPixels32(vCamColors);
         UnityCamTex.Apply();
     }
 
@@ -122,10 +119,13 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             cameraFeed = CameraDevice.Instance.GetCameraImage(Image.PIXEL_FORMAT.GRAYSCALE);
             UpdateCamTex(cameraFeed);
             tempText = new QRCodeReader().decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight).Text;
+            //tempText = new QRCodeReader().decode(vDecodeBytes, UnityCamTex.width, UnityCamTex.height).Text;
+
         }
-        catch
+        catch(Exception e)
         {
             // Fail to detect QR Code!
+            // vDebugText = "Failed: " + e.InnerException.Message ;
         }
         finally
         {
