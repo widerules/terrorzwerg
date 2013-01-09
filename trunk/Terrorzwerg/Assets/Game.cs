@@ -53,6 +53,7 @@ public class Game : MonoBehaviour {
     public int QRCodeSize = 180;
     public int QRDistance = 100;
     public int QRHeight = 400;
+	public GameObject[] Obstacles;
 
 	public bool SomeoneHasLightOn  {
 		get;
@@ -75,6 +76,7 @@ public class Game : MonoBehaviour {
 
     Texture2D CreateQR(string iQRString, int iSize)
     {
+		//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?ip=%27192.168.0.1%27&port=%27998%27&team=%271%27
         Texture2D tmpTex = new Texture2D(iSize, iSize);
 
         QRCodeWriter tmpWriter = new QRCodeWriter();
@@ -199,6 +201,7 @@ public class Game : MonoBehaviour {
         {
             Destroy(tmpCoin.gameObject);
         }
+		RandomizeObstacles();
         var tmpFlag = GameObject.FindGameObjectsWithTag("Flag_0")[0];
         tmpFlag.transform.position = new Vector3(-20, 0, 0);
         tmpFlag = GameObject.FindGameObjectsWithTag("Flag_1")[0];
@@ -206,7 +209,49 @@ public class Game : MonoBehaviour {
 
         GameState = eGameState.InGame;
         networkView.RPC("GameStarted", RPCMode.All);
+		
     }
+	
+	void RandomizeObstacles(){
+		bool a=true;
+		bool b=true;
+		bool c=true;
+		bool d=true;
+		foreach(GameObject obstacle in Obstacles)
+		{
+			if(obstacle.name.Contains("0")){
+				if(Random.value>0.5){
+					obstacle.SetActiveRecursively(true);
+					
+				}
+			}	
+			else if(obstacle.name.Contains("1") && a)
+			{
+				if(Random.value<0.5){
+					obstacle.SetActiveRecursively(true);
+					a=false;
+				}
+			}
+			else if(obstacle.name.Contains("2") && b){
+				if(Random.value<0.5){
+					obstacle.SetActiveRecursively(true);
+					b=false;
+				}
+			}
+			else if(obstacle.name.Contains("3") && c){
+				if(Random.value<0.5){
+					obstacle.SetActiveRecursively(true);
+					c=false;
+				}
+			}
+			else if(obstacle.name.Contains("4") && d){
+				if(Random.value<0.5){
+					obstacle.SetActiveRecursively(true);
+					d=false;
+				}
+			}
+		}
+	}
 
 	void EndGame(Player.eTeam iWinningTeam){
         GameOverTime = MaxGameOverTime; 
