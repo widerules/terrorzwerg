@@ -133,7 +133,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             {
 				//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=127.0.0.1:666;0
 				
-				qrText = tempText.Split("Zwegdata=")[1];
+				qrText = tempText.Split(new string[]{"Zwegdata="}, StringSplitOptions.None)[1];
                 string AddressPart = qrText.Split(';')[0];
                 GameData.instance.ipAdress = AddressPart.Split(':')[0];
                 GameData.instance.port = int.Parse(AddressPart.Split(':')[1]);
