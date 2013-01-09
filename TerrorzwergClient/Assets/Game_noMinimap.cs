@@ -23,6 +23,7 @@ public class Game_noMinimap : MonoBehaviour
     public AudioClip SoundStrikeMatch;
     public AudioClip SoundHurt;
     public AudioClip[] SoundDie;
+	public AudioClip[] SoundWalk;
 
     public Texture StrikingTexture;
     public Texture TexPrepare_Red;
@@ -192,6 +193,11 @@ public class Game_noMinimap : MonoBehaviour
 
         AudioSource.PlayClipAtPoint(SoundDie[tmpRand], camera.transform.position, 1);
     }
+	[RPC]
+	void PlayWalkSound(){
+		int tmpRand = Random.Range(0,SoundWalk.Length);
+		AudioSource.PlayClipAtPoint(SoundWalk[tmpRand],camera.transform.position,1);
+	}
 
 	[RPC]
 	void GameStarted(){
