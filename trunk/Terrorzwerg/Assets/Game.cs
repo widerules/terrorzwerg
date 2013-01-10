@@ -26,9 +26,9 @@ public class Game : MonoBehaviour {
         get { return ipadress; }
         private set { ipadress = value; }
     }
-
+    string NetworkGUID;
     public int Port = 5554;
-    public int MinimumPlayers = 1;
+    public int MinimumPlayers = 2;
 
     string port;
 
@@ -78,8 +78,8 @@ public class Game : MonoBehaviour {
     private void InitializeMenu()
     {
 		//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=127.0.0.1:666;0
-        TextureLogPlayer0 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata="+IPAddress + ":" + Port + ";0", QRCodeSize);
-        TextureLogPlayer1 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata="+IPAddress + ":" + Port + ";1", QRCodeSize);
+        TextureLogPlayer0 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";0", QRCodeSize);
+        TextureLogPlayer1 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";1", QRCodeSize);
     }
 
     Texture2D CreateQR(string iQRString, int iSize)
@@ -119,15 +119,32 @@ public class Game : MonoBehaviour {
 
     void InitializeServer()
     {
+        int tmpTries = 3;
+        int tmpTriesNat = 3;
         // ToDo: change to NAT Server.
-        int tmpTries = 10;
         NetworkConnectionError tmpError;
+        Debug.Log("Using NAT.");
+        while ((tmpError = Network.InitializeServer(16, Port, true)) != NetworkConnectionError.NoError && tmpTriesNat > 0)
+        {
+            Debug.Log("Server: " + tmpError.ToString());
+            Port += Random.Range(1, 12);
+            tmpTriesNat--;
+        }
+
+        Debug.Log("Using public address.");
         while ((tmpError = Network.InitializeServer(16, Port, false)) != NetworkConnectionError.NoError && tmpTries > 0)
         {
             Debug.Log("Server: " + tmpError.ToString());
             Port += Random.Range(1, 12);
+            tmpTries--;
         }
-        ipadress = Network.player.ipAddress;	    
+
+        MasterServer.RegisterHost("TerrorZwerg", Network.player.ipAddress + ":" + Network.player.port, "Test Game");
+       
+        ipadress = Network.player.ipAddress;
+        Port = Network.player.port;
+        NetworkGUID = Network.player.guid;
+        Debug.Log("Server started at: " + ipadress + ":" + Port + " NAT GUID: " + NetworkGUID);
     }
 
 	// Update is called once per frame
@@ -299,8 +316,9 @@ public class Game : MonoBehaviour {
         networkView.RPC("GameOver", RPCMode.All, (int)iWinningTeam);
         RemoveAllPlayers();
 	}
-	
-	void OnGUI () {
+
+    #region GUIStuff
+    void OnGUI () {
         switch (vGameState)
         {
             case eGameState.Menu:
@@ -372,11 +390,13 @@ public class Game : MonoBehaviour {
         int tmpTexId = Mathf.Clamp((int)GameOverTime, 0, (MenuNumerals.Length - 1));
         GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
     }
+    #endregion
 
     void OnDestroy()
     {
         
     }
+
     #region NetworkStuff
     public void SendHealth(int Health, NetworkPlayer player){	
 		networkView.RPC("SetHealth", player, Health);
@@ -446,6 +466,8 @@ public class Game : MonoBehaviour {
 
         // Reset connection timer.
         PlayerConnectionTime = MaxPlayerConnectionTime;
+
+        Debug.Log("Player connected: " + iPlayer.ipAddress + ":" + iPlayer.port.ToString());
     }
 
     void OnPlayerDisconnected(NetworkPlayer iPlayer)

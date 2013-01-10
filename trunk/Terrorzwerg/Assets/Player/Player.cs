@@ -271,7 +271,15 @@ public class Player : MonoBehaviour {
     {
         StartCoroutine(CollisionResponse());
     }
-	
+
+    void OnCollisionStay(Collision collisionInfo)
+    {
+        foreach (ContactPoint contact in collisionInfo.contacts)
+        {
+            //Debug.DrawRay(contact.point, contact.normal * 10, Color.white);
+        }
+    }
+
 	IEnumerator CollisionResponse()
 	{
 		
