@@ -38,10 +38,9 @@ public class Game_noMinimap : MonoBehaviour
     {
         GameData.instance.connectionFailed = false;
         GameData.instance.winningTeam = -1;
-        ConnectionIP = GameData.instance.ipAdress;
-        ConnectionPort = GameData.instance.port;
 
-        ConnectToServer(ConnectionIP, ConnectionPort);
+        MasterServer.RequestHostList("TerrorZwerg");
+        ConnectToServer();
     	InfoString="Connecting ... ";
 	}
 
@@ -118,15 +117,38 @@ public class Game_noMinimap : MonoBehaviour
         }
     }
 
-    void ConnectToServer(string iIP, int iPort)
+    int tmpConnectionTriesNAT = 2;
+    int tmpConnectionTries = 2;
+
+    void ConnectToServer()
     {
-        Network.Connect(iIP, iPort);
+        if (tmpConnectionTries > 0)
+        {
+            Network.Connect(GameData.instance.ipAdress, GameData.instance.port);
+            tmpConnectionTries--;
+        }
+        else if (tmpConnectionTriesNAT > 0)
+        {
+            HostData[] tmpData = MasterServer.PollHostList();
+            foreach (var tmpGame in tmpData)
+            {
+                if (tmpGame.gameName == GameData.instance.ipAdress + ":" + GameData.instance.port)
+                {
+                    Network.Connect(tmpGame);
+                }
+            }
+            tmpConnectionTriesNAT--;
+        }
+        else
+        {
+            GameData.instance.connectionFailed = true;
+        }
     }
 
     void OnFailedToConnect(NetworkConnectionError error)
     {
-        GameData.instance.connectionFailed = true;
-        InfoString = "Connection Failed: " + error;
+        // Try again.
+        ConnectToServer();
     }
 
     void OnConnectedToServer()

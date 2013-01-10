@@ -133,12 +133,15 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         {
             if (!string.IsNullOrEmpty(tempText))
             {
-				//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=127.0.0.1:666;0
-				
+				//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=127.0.0.1:666,ASD-A080a-d080a8d-0ad;0
+
 				qrText = tempText.Split(new string[]{"Zwegdata="}, StringSplitOptions.None)[1];
                 string AddressPart = qrText.Split(';')[0];
                 GameData.instance.ipAdress = AddressPart.Split(':')[0];
-                GameData.instance.port = int.Parse(AddressPart.Split(':')[1]);
+
+                AddressPart = AddressPart.Split(':')[1];
+                GameData.instance.port = int.Parse(AddressPart.Split(',')[0]);
+                GameData.instance.networkGUID = AddressPart.Split(',')[1];
                 GameData.instance.playerId = int.Parse(qrText.Split(';')[1]);
             }
         }
