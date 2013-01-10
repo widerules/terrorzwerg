@@ -59,6 +59,8 @@ public class Game : MonoBehaviour {
 	public GameObject[] Obstacles;
 
     public AudioClip Fanfare;
+    float MusicVolume = 1.0f;
+    public float IngameMusicVolume = 0.3f;
 
 	public bool SomeoneHasLightOn  {
 		get;
@@ -117,8 +119,14 @@ public class Game : MonoBehaviour {
 
     void InitializeServer()
     {
-        // TODO change to NAT Server.
-        Network.InitializeServer(16, Port);
+        // ToDo: change to NAT Server.
+        int tmpTries = 10;
+        NetworkConnectionError tmpError;
+        while ((tmpError = Network.InitializeServer(16, Port, false)) != NetworkConnectionError.NoError && tmpTries > 0)
+        {
+            Debug.Log("Server: " + tmpError.ToString());
+            Port += Random.Range(1, 12);
+        }
         ipadress = Network.player.ipAddress;	    
     }
 
@@ -152,6 +160,16 @@ public class Game : MonoBehaviour {
             PlayerConnectionTime = 0;
             StartNewGame();
         }
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+        if (MusicVolume < 1.0f)
+            MusicVolume += Time.deltaTime;
+        else
+            MusicVolume = 1.0f;
+
+        audio.volume = MusicVolume;
     }
 
     void UpdateGame()
@@ -186,6 +204,17 @@ public class Game : MonoBehaviour {
                 EndGame(tmpPlayer.Team);
 			}
         }
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            EndGame(0);
+        }
+
+        if (MusicVolume > IngameMusicVolume)
+            MusicVolume -= Time.deltaTime;
+        else
+            MusicVolume = IngameMusicVolume;
+
+        audio.volume = MusicVolume;
     }
 
     void UpdateGameOver()
@@ -314,17 +343,17 @@ public class Game : MonoBehaviour {
     {
         string tmpInfoText;
 
-        if (noFlag)
-        {
-            tmpInfoText = "Go get the treasure!!! (" + ipadress + ")";
-        }
-        else
-        {
-            tmpInfoText = "Team" + stealingTeam + " the treasure!";
-        }
-        //tmpInfoText = ipadress;
+        //if (noFlag)
+        //{
+        //    tmpInfoText = "Go get the treasure!!! (" + ipadress + ")";
+        //}
+        //else
+        //{
+        //    tmpInfoText = "Team" + stealingTeam + " the treasure!";
+        //}
+        ////tmpInfoText = ipadress;
 
-        GUI.Label(new Rect(Screen.width / 2 - 100, 10, 200, 30), tmpInfoText);
+        //GUI.Label(new Rect(Screen.width / 2 - 100, 10, 200, 30), tmpInfoText);
     }
 
     void OnGUIGameOver()

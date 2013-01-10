@@ -19,6 +19,7 @@ public class Game_noMinimap : MonoBehaviour
     Vector2 StrikeStart;
     bool Striking = false;
     float StrikingMatchAxis = 0;
+    float ConnectionFailedTime = 5;
 
     public AudioClip SoundStrikeMatch;
     public AudioClip SoundHurt;
@@ -30,10 +31,12 @@ public class Game_noMinimap : MonoBehaviour
     public Texture TexPrepare_Blue;
     public Texture TexWon;
     public Texture TexLost;
+    public Texture TexConnectionFailed;
 
     // Use this for initialization
     void Start()
     {
+        GameData.instance.connectionFailed = false;
         GameData.instance.winningTeam = -1;
         ConnectionIP = GameData.instance.ipAdress;
         ConnectionPort = GameData.instance.port;
@@ -104,16 +107,25 @@ public class Game_noMinimap : MonoBehaviour
         {
             GUI.DrawTexture(tmpFull, TexLost);
         }
+        if (GameData.instance.connectionFailed)
+        {
+            ConnectionFailedTime -= Time.deltaTime;
+            GUI.DrawTexture(tmpFull, TexConnectionFailed);
+            if (ConnectionFailedTime <= 0)
+            {
+                Application.LoadLevel("Client_Menu");
+            }
+        }
     }
 
     void ConnectToServer(string iIP, int iPort)
     {
         Network.Connect(iIP, iPort);
-
     }
 
     void OnFailedToConnect(NetworkConnectionError error)
     {
+        GameData.instance.connectionFailed = true;
         InfoString = "Connection Failed: " + error;
     }
 
