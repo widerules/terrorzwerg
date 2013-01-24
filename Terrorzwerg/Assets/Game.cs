@@ -41,6 +41,7 @@ public class Game : MonoBehaviour {
     public float MaxPlayerConnectionTime = 10;
     public float MaxGameOverTime = 10;
 
+    int PlayersReadyCount = 0;
     float PlayerConnectionTime = 10;
     float GameOverTime = 10;
     Texture2D TextureLogPlayer0;
@@ -66,7 +67,11 @@ public class Game : MonoBehaviour {
 		get;
 		private set;
 	}
-	
+
+    public bool EnableShadowCollision = true;
+
+    public float RainZoneSize = 3;
+
 	// Use this for initialization
 	void Start () {
         GameState = eGameState.Menu;
@@ -168,7 +173,7 @@ public class Game : MonoBehaviour {
 
     void UpdateMenu()
     {
-        if (Players.Count >= MinimumPlayers)
+        if (Players.Count == PlayersReadyCount && PlayersReadyCount > 0)
         {
             PlayerConnectionTime -= Time.deltaTime;
         }
@@ -204,7 +209,24 @@ public class Game : MonoBehaviour {
 					float tmpDistance = Vector3.Distance(tmpPlayer.Position, tmpEnemyPlayer.Position);
 					if(tmpPlayer != tmpEnemyPlayer && tmpEnemyPlayer.IsInEnemyTerritory && tmpDistance < tmpPlayer.UnityLight.range)
 					{
-						tmpEnemyPlayer.DoDamage((1.0f-(tmpDistance/tmpPlayer.UnityLight.range)) * 100 * Time.deltaTime);
+                        if (EnableShadowCollision)
+                        {
+                            Vector3 tmpRayVec = (tmpEnemyPlayer.Position - tmpPlayer.Position) + new Vector3(0, 0.5f, 0);
+                            float tmpRayLength = tmpRayVec.magnitude;
+                            Ray tmpColRay = new Ray(tmpPlayer.Position, tmpRayVec);
+                            // Collide everything but players. It's too buggy with self collision etc.
+                            int layerMask = 1 << 10;
+                            layerMask = ~layerMask;
+                            if (!Physics.Raycast(tmpColRay, tmpRayLength, layerMask))
+                            {
+                                //Debug.DrawLine(tmpPlayer.Position + new Vector3(0, 0.5f, 0), tmpEnemyPlayer.Position + new Vector3(0, 0.5f, 0), Color.magenta);
+                                tmpEnemyPlayer.DoDamage((1.0f - (tmpDistance / tmpPlayer.UnityLight.range)) * 80 * Time.deltaTime);
+                            }
+                        }
+                        else
+                        {
+                            tmpEnemyPlayer.DoDamage((1.0f - (tmpDistance / tmpPlayer.UnityLight.range)) * 80 * Time.deltaTime);
+                        }
 					}
 				}
 				
@@ -240,7 +262,8 @@ public class Game : MonoBehaviour {
         if (GameOverTime < 0)
         {
             PlayerConnectionTime = MaxPlayerConnectionTime;            
-            DisconnectAllPlayers();
+            //DisconnectAllPlayers();
+            networkView.RPC("GameRestarted", RPCMode.All);
             GameState = eGameState.Menu;
         }
     }
@@ -264,7 +287,12 @@ public class Game : MonoBehaviour {
 
         GameState = eGameState.InGame;
         networkView.RPC("GameStarted", RPCMode.All);
-		
+
+        var tmpRainzones = FindObjectsOfType(typeof(Rainzone));
+        foreach (Rainzone tmpZone in tmpRainzones)
+        {
+            tmpZone.Size = RainZoneSize;
+        }
     }
 	
 	void RandomizeObstacles(){
@@ -313,8 +341,9 @@ public class Game : MonoBehaviour {
         GameOverTime = MaxGameOverTime; 
         WinningTeam = iWinningTeam;
         GameState = eGameState.GameOver;
+        PlayersReadyCount = 0;
         networkView.RPC("GameOver", RPCMode.All, (int)iWinningTeam);
-        RemoveAllPlayers();
+        //RemoveAllPlayers();
 	}
 
     #region GUIStuff
@@ -340,7 +369,7 @@ public class Game : MonoBehaviour {
     {
         GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
 
-        if (Players.Count >= MinimumPlayers)
+        if (Players.Count == PlayersReadyCount && PlayersReadyCount > 0)
         {
             int tmpTexId = Mathf.Clamp((int)PlayerConnectionTime, 0, (MenuNumerals.Length-1));
             GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
@@ -458,14 +487,17 @@ public class Game : MonoBehaviour {
 
     }
 
+    [RPC]
+    void GameRestarted()
+    {
+
+    }
+
 	void OnPlayerConnected(NetworkPlayer iPlayer){
         Player tmpPlayer = (Player)Instantiate(basePlayer, new Vector3(0, -10000, 0), Quaternion.identity);
         tmpPlayer.nPlayer = iPlayer;
 
         Players.Add(iPlayer, tmpPlayer);
-
-        // Reset connection timer.
-        PlayerConnectionTime = MaxPlayerConnectionTime;
 
         Debug.Log("Player connected: " + iPlayer.ipAddress + ":" + iPlayer.port.ToString());
     }
@@ -505,45 +537,23 @@ public class Game : MonoBehaviour {
         }
     }
 
-
-    public void Player_PlayStrikingSound(NetworkPlayer iPlayer)
+    public void Player_PlaySound(NetworkPlayer iPlayer, string iSound)
     {
-        networkView.RPC("PlayStrikingSound", iPlayer, null);
-    }
-
-    public void Player_PlayHurtSound(NetworkPlayer iPlayer)
-    {
-        networkView.RPC("PlayHurtSound", iPlayer, null);
-    }
-    public void Player_PlayDeathSound(NetworkPlayer iPlayer)
-    {
-        networkView.RPC("PlayDeathSound", iPlayer, null);
-    }
-
-    public void Player_PlayWalkSound(NetworkPlayer iPlayer)
-    {
-        networkView.RPC("PlayWalkSound", iPlayer, null);
+        networkView.RPC("PlaySound", iPlayer, iSound);
     }
 
     [RPC]
-    void PlayStrikingSound()
+    void PlaySound(string iSound)
     {
     }
 
+    /// <summary>
+    /// Client calls this when he is ready for the game.
+    /// </summary>
     [RPC]
-    void PlayHurtSound()
+    void Ready()
     {
-    }
-
-    [RPC]
-    void PlayDeathSound()
-    {
-    }
-
-
-    [RPC]
-    void PlayWalkSound()
-    {
+        PlayersReadyCount++;
     }
     #endregion
 }

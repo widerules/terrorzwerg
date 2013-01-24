@@ -37,9 +37,12 @@ public class Game_noMinimap : MonoBehaviour
     public Texture TexLost;
     public Texture TexConnectionFailed;
 
+    public Font GUIFont;
+
     // Use this for initialization
     void Start()
     {
+        GUI.skin.font = GUIFont;
         GameData.instance.connectionFailed = false;
         GameData.instance.winningTeam = -1;
 
