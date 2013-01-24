@@ -54,8 +54,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             {
                 if (!string.IsNullOrEmpty(qrText))
                 {
-                  //  Application.LoadLevel("Client_noMinimap");
-                  //  qrText = null;
+                  Application.LoadLevel("Client_noMinimap");
+                  qrText = null;
 					// try to connect	
                 }
             }
