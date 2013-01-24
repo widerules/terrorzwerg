@@ -23,6 +23,7 @@ public class Player : MonoBehaviour {
     public Material RedSkin;
     public ParticleSystem Fire;
 	Game gameScript;
+	public Texture HealthTexture;
 	
 	public bool LightOn {
 		get {
@@ -59,6 +60,8 @@ public class Player : MonoBehaviour {
 	public Coin BaseCoin;
 	float CoinDropRateDelayInSeconds = 2;
 	
+	Vector3 screenPosition;
+	
 	public float xAxis;
 	public float yAxis;
 	public float LightButton;
@@ -69,9 +72,17 @@ public class Player : MonoBehaviour {
     float vWalkTime;
 	// Use this for initialization
 	void Start () {
+		screenPosition = Camera.main.WorldToScreenPoint(this.transform.position);
         SetPositionAndTeam(StartPosition, Team);
 		
 		gameScript=(Game)FindObjectOfType(typeof(Game));					
+	}
+	
+	void OnGUI(){
+		var oColor = GUI.color;
+		GUI.color = Color.red;
+		GUI.DrawTexture(new Rect(screenPosition.x, Screen.height - screenPosition.y - 96, 96, 64),HealthTexture);
+		GUI.color = oColor;
 	}
 	
 	// Update is called once per frame
@@ -81,6 +92,9 @@ public class Player : MonoBehaviour {
             xAxis = Input.GetAxis("Horizontal_" + TeamNumber);
             yAxis = Input.GetAxis("Vertical_" + TeamNumber);
         }
+		
+		screenPosition = Camera.main.WorldToScreenPoint(this.transform.position);
+
 		var tmpHorizontal = xAxis;
 		var tmpVertical = yAxis;
 		
@@ -221,6 +235,7 @@ public class Player : MonoBehaviour {
 	
 	public void DoDamage(float iAmount)
 	{
+		
 		Health -= iAmount;
 		gameScript.SendHealth((int)Health,nPlayer);
         if (Health <= 0 && !IsDead)
