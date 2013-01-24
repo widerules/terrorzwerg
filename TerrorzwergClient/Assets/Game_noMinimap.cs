@@ -229,31 +229,33 @@ public class Game_noMinimap : MonoBehaviour
     [RPC]
     void PlaySound(string iSound)
     {
-        switch (iSound)
-        {
-            case "Strike":
-                AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
-                break;
-            case "Hurt":
-                AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
-                break;
-            case "Death":
-     		    int tmpRandD = Random.Range(0,SoundDie.Length);
-                AudioSource.PlayClipAtPoint(SoundDie[tmpRandD], camera.transform.position, 1);
-                break;
-            case "Walk":
-     		    int tmpRandW = Random.Range(0,SoundWalk.Length);
-		        AudioSource.PlayClipAtPoint(SoundWalk[tmpRandW],camera.transform.position, 0.3f);
-                break;
-            case "Extinguish":
-                AudioSource.PlayClipAtPoint(SoundExtinguish, camera.transform.position, 0.3f);
-                break;
-            case "Coin":
-                AudioSource.PlayClipAtPoint(SoundCoin, camera.transform.position, 0.3f);
-                break;
-            default:
-                break;
-        }
+		if(InGame){
+	        switch (iSound)
+	        {
+	            case "Striking":
+	                AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
+	                break;
+	            case "Hurt":
+	                AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
+	                break;
+	            case "Death":
+	     		    int tmpRandD = Random.Range(0,SoundDie.Length);
+	                AudioSource.PlayClipAtPoint(SoundDie[tmpRandD], camera.transform.position, 1);
+	                break;
+	            case "Walk":
+	     		    int tmpRandW = Random.Range(0,SoundWalk.Length);
+			        AudioSource.PlayClipAtPoint(SoundWalk[tmpRandW],camera.transform.position, 0.3f);
+	                break;
+	            case "Extinguish":
+	                AudioSource.PlayClipAtPoint(SoundExtinguish, camera.transform.position, 0.3f);
+	                break;
+	            case "Coin":
+	                AudioSource.PlayClipAtPoint(SoundCoin, camera.transform.position, 0.3f);
+	                break;
+	            default:
+	                break;
+	        }
+		}
     }
 
 	[RPC]
