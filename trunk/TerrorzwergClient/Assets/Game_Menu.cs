@@ -54,8 +54,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             {
                 if (!string.IsNullOrEmpty(qrText))
                 {
-                  Application.LoadLevel("Client_noMinimap");
-                  qrText = null;
+                  //Application.LoadLevel("Client_noMinimap");
+                  //qrText = null;
 					// try to connect	
                 }
             }
@@ -146,6 +146,11 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
                 GameData.instance.port = int.Parse(AddressPart.Split(',')[0]);
                 GameData.instance.networkGUID = AddressPart.Split(',')[1];
                 GameData.instance.playerId = int.Parse(qrText.Split(';')[1]);
+				// connect
+				
+				  Application.LoadLevel("Client_noMinimap");
+                  qrText = null;
+				
             }
         }
     }
