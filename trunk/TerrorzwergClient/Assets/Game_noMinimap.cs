@@ -96,7 +96,7 @@ public class Game_noMinimap : MonoBehaviour
             {
 				//ready button
                 GUI.DrawTexture(tmpFull, TexPrepare_Blue);
-				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2-200,Screen.height/2-200,100,200),"Team Blue - READY!") ){
+				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-200,100,200),"Team Blue - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
 					showReadyButton=false;
 				}
@@ -106,13 +106,14 @@ public class Game_noMinimap : MonoBehaviour
             {
 				// ready button
                 GUI.DrawTexture(tmpFull, TexPrepare_Red);
-				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Red - READY!") ){
+				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-200,100,200),"Team Red - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
 					showReadyButton=false;
 				}
             }
-			if( showReadyButton && GUI.Button(new Rect(Screen.width/2-400,Screen.height/2-400,100,200),"Back")){
-				
+			// back button
+			if( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-400,100,200),"Back")){
+				 Application.LoadLevel("Client_Menu");
 			}
         }
         else
