@@ -12,7 +12,7 @@ public class Game_noMinimap : MonoBehaviour
 
     bool InGame = false;
 	bool currColl = false;
-	bool connected = false;
+	bool showReadyButton = false;
 	
     public GameObject Player;
 
@@ -92,16 +92,18 @@ public class Game_noMinimap : MonoBehaviour
             if (GameData.instance.playerId == 0)
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Blue);
-				if ( connected && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Blue - READY!") ){
+				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Blue - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
+					showReadyButton=false;
 				}
        				
             }
             else
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Red);
-				if ( connected && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Red - READY!") ){
+				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Red - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
+					showReadyButton=false;
 				}
             }
         }
@@ -109,14 +111,16 @@ public class Game_noMinimap : MonoBehaviour
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), StrikingTexture);
         }
-        if (GameData.instance.winningTeam == GameData.instance.playerId)
+		
+        if (!showReadyButton && GameData.instance.winningTeam == GameData.instance.playerId)
         {
             GUI.DrawTexture(tmpFull, TexWon);
         }
-        else if(GameData.instance.winningTeam != -1)
+        else if(!showReadyButton && GameData.instance.winningTeam != -1)
         {
             GUI.DrawTexture(tmpFull, TexLost);
         }
+		
         if (GameData.instance.connectionFailed)
         {
             ConnectionFailedTime -= Time.deltaTime;
@@ -169,7 +173,7 @@ public class Game_noMinimap : MonoBehaviour
 
 		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
 		
-		connected = true;
+		showReadyButton = true;
 
     }
 	void OnDisconnectedFromServer(NetworkDisconnection info) {
@@ -276,6 +280,7 @@ public class Game_noMinimap : MonoBehaviour
 	[RPC]
 	void GameRestarted(){
 		InGame=false;
+		showReadyButton=true;
 	}
 	
 	
