@@ -12,6 +12,7 @@ public class Game_noMinimap : MonoBehaviour
 
     bool InGame = false;
 	bool currColl = false;
+	bool connected = false;
 	
     public GameObject Player;
 
@@ -27,6 +28,7 @@ public class Game_noMinimap : MonoBehaviour
     public AudioClip SoundExtinguish;
     public AudioClip[] SoundDie;
 	public AudioClip[] SoundWalk;
+	
 
     public Texture StrikingTexture;
     public Texture TexPrepare_Red;
@@ -90,7 +92,7 @@ public class Game_noMinimap : MonoBehaviour
             if (GameData.instance.playerId == 0)
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Blue);
-				if ( GUI.Button(new Rect(10,10,50,50),"Team Blue - READY!") ){
+				if ( connected && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Blue - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
 				}
        				
@@ -98,7 +100,7 @@ public class Game_noMinimap : MonoBehaviour
             else
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Red);
-				if ( GUI.Button(new Rect(10,10,50,50),"Team Red - READY!") ){
+				if ( connected && GUI.Button(new Rect(Screen.width/2,Screen.height/2,200,200),"Team Red - READY!") ){
 					networkView.RPC("Ready",RPCMode.Server);
 				}
             }
@@ -166,6 +168,8 @@ public class Game_noMinimap : MonoBehaviour
 		InfoString = "Connected to "+GameData.instance.ipAdress +" - you are in Team "+GameData.instance.playerId;
 
 		networkView.RPC("SetPlayerTeam",RPCMode.Server,GameData.instance.playerId);
+		
+		connected = true;
 
     }
 	void OnDisconnectedFromServer(NetworkDisconnection info) {
