@@ -19,7 +19,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     public float UnityTexScale = 0.25f;
     Color32[] vCamColors;
     byte[] vDecodeBytes;
-	bool firstImage;
+
+    WebCamTexture vWebcam;
 
     // Use this for initialization
     void Start()
@@ -30,7 +31,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         {
             qcarBehaviour.RegisterTrackerEventHandler(this);
         }
-		firstImage=true;
+
         isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
         UnityCamTex = new Texture2D((int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).width * UnityTexScale), (int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).height * UnityTexScale));
         vCamColors = new Color32[UnityCamTex.width * UnityCamTex.height];
@@ -39,6 +40,43 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         InvokeRepeating("Autofocus", 1f, 2f);
 		qrText = "";
         GameData.instance.playerId = -1;
+
+
+       // InitWebcam();
+
+    }
+
+    void InitWebcam()
+    {
+        bool foundCamera = false;
+        string desiredCameraName = "";
+        if (WebCamTexture.devices != null)
+        {
+            for (int i = 0; i < WebCamTexture.devices.Length; i++)
+            {
+                // We'd like a camera which is not front-facing.
+                if (!WebCamTexture.devices[i].isFrontFacing)
+                {
+                    desiredCameraName = WebCamTexture.devices[i].name;
+                    foundCamera = true;
+                    break;
+                }
+            }
+        }
+
+        /* If we've got one, we try to get access and then play it. */
+        if (foundCamera)
+        {
+            vWebcam = new WebCamTexture(desiredCameraName);
+            //UnityCamTex = vWebcam;
+
+            vWebcam.Play();
+            vDebugText = "Found a camera and using it!";
+        }
+        else
+        {
+            vDebugText = "No camera found!";
+        }
     }
 	
     void Autofocus()
@@ -91,7 +129,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         }
         GUI.DrawTexture(tmpCam, UnityCamTex);
 
-        //GUI.Label(new Rect(20, 20, 1000, 200), qrText);
+        GUI.Label(new Rect(20, 20, 1000, 200), vDebugText);
 
     }
 
@@ -116,6 +154,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
     public void OnTrackablesUpdated()
     {
+
         try
         {
             if (!isFrameFormatSet)
@@ -125,12 +164,10 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
             cameraFeed = CameraDevice.Instance.GetCameraImage(Image.PIXEL_FORMAT.GRAYSCALE);
             UpdateCamTex(cameraFeed);
-            if(firstImage==false){
-				tempText = new QRCodeReader().decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight).Text;
-			}
-			else{
-				firstImage=false;
-			}
+
+            tempText = "";
+            tempText = new QRCodeReader().decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight).Text;
+
 			//tempText = new QRCodeReader().decode(vDecodeBytes, UnityCamTex.width, UnityCamTex.height).Text;
 
         }
@@ -158,7 +195,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 					Application.LoadLevel("Client_noMinimap");
 					qrText = null;
 				}
-				
+
+                qrText = null;
             }
 			else{
 				GameData.instance.ipAdress = "";
