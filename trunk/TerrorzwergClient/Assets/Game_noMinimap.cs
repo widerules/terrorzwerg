@@ -23,6 +23,8 @@ public class Game_noMinimap : MonoBehaviour
 
     public AudioClip SoundStrikeMatch;
     public AudioClip SoundHurt;
+    public AudioClip SoundCoin;
+    public AudioClip SoundExtinguish;
     public AudioClip[] SoundDie;
 	public AudioClip[] SoundWalk;
 
@@ -217,29 +219,34 @@ public class Game_noMinimap : MonoBehaviour
 	}
 
     [RPC]
-    void PlayStrikingSound()
+    void Player_PlaySound(string iSound)
     {
-        AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
+        switch (iSound)
+        {
+            case "Strike":
+                AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
+                break;
+            case "Hurt":
+                AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
+                break;
+            case "Death":
+     		    int tmpRandD = Random.Range(0,SoundDie.Length);
+                AudioSource.PlayClipAtPoint(SoundDie[tmpRandD], camera.transform.position, 1);
+                break;
+            case "Walk":
+     		    int tmpRandW = Random.Range(0,SoundWalk.Length);
+		        AudioSource.PlayClipAtPoint(SoundWalk[tmpRandW],camera.transform.position, 0.3f);
+                break;
+            case "Extinguish":
+                AudioSource.PlayClipAtPoint(SoundExtinguish, camera.transform.position, 0.3f);
+                break;
+            case "Coin":
+                AudioSource.PlayClipAtPoint(SoundCoin, camera.transform.position, 0.3f);
+                break;
+            default:
+                break;
+        }
     }
-
-    [RPC]
-    void PlayHurtSound()
-    {
-        AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
-    }
-
-    [RPC]
-    void PlayDeathSound()
-    {
-        int tmpRand = Random.Range(0, SoundDie.Length);
-
-        AudioSource.PlayClipAtPoint(SoundDie[tmpRand], camera.transform.position, 1);
-    }
-	[RPC]
-	void PlayWalkSound(){
-		int tmpRand = Random.Range(0,SoundWalk.Length);
-		AudioSource.PlayClipAtPoint(SoundWalk[tmpRand],camera.transform.position, 0.3f);
-	}
 
 	[RPC]
 	void GameStarted(){
