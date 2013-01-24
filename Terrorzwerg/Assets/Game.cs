@@ -47,6 +47,7 @@ public class Game : MonoBehaviour {
     Texture2D TextureLogPlayer0;
     Texture2D TextureLogPlayer1;
     public Texture2D MenuBackground;
+    public Texture2D MenuTitle;
     public Texture2D MenuBlueWon;
     public Texture2D MenuRedWon;
 
@@ -71,6 +72,8 @@ public class Game : MonoBehaviour {
     public bool EnableShadowCollision = true;
 
     public float RainZoneSize = 3;
+
+    public GUISkin Skin;
 
 	// Use this for initialization
 	void Start () {
@@ -112,7 +115,7 @@ public class Game : MonoBehaviour {
                 }
                 //byte tmpCol = tmpMatrix.Array[i][j] == 0 ? (byte)0 : (byte)255;
                 //tmpColor[tmpPos].r = tmpColor[tmpPos].g = tmpColor[tmpPos].b = tmpCol;
-                tmpColor[tmpPos].a = 255;
+                //tmpColor[tmpPos].a = 255;
             }
         }
 
@@ -348,6 +351,7 @@ public class Game : MonoBehaviour {
 
     #region GUIStuff
     void OnGUI () {
+        GUI.skin = Skin;
         switch (vGameState)
         {
             case eGameState.Menu:
@@ -367,22 +371,28 @@ public class Game : MonoBehaviour {
 
     void OnGUIMenu()
     {
-        GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
+        //GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
+        GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), MenuBackground, new Rect(0, 0, Screen.width / 500.0f, Screen.height/500.0f));
 
         if (Players.Count == PlayersReadyCount && PlayersReadyCount > 0)
         {
             int tmpTexId = Mathf.Clamp((int)PlayerConnectionTime, 0, (MenuNumerals.Length-1));
             GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
         }
+        //GUI.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+        //GUI.Label(new Rect(0, 0, Screen.width, 200), "Terror Zwerg");
+        //GUI.color = Color.white;
 
-        //GUI.Label(new Rect(10, 30, 400, 20), "Players connected: " + Players.Count);
+        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
+        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
+        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
 
         GUI.BeginGroup(new Rect(Screen.width / 2 - QRCodeSize - QRDistance, QRHeight, 270, 290));
-        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer0);
+        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer0, ScaleMode.ScaleAndCrop, true);
         GUI.EndGroup();
 
         GUI.BeginGroup(new Rect(Screen.width / 2 + QRDistance, QRHeight, 270, 290));
-        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer1);
+        GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer1, ScaleMode.ScaleAndCrop, true);
         GUI.EndGroup();
     }
 
@@ -423,7 +433,7 @@ public class Game : MonoBehaviour {
 
     void OnDestroy()
     {
-        
+        //DisconnectAllPlayers();
     }
 
     #region NetworkStuff
@@ -462,15 +472,24 @@ public class Game : MonoBehaviour {
 
         Vector2 tmpRandPos = Random.insideUnitCircle * 2;
         Player tmpPlayer = null;
-        if(Players.TryGetValue(tmpNetworkInfo.sender, out tmpPlayer))
+        if (Players.TryGetValue(tmpNetworkInfo.sender, out tmpPlayer))
         {
             if(tmpTeam == Player.eTeam.Blue)
             {
-                tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, 0) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+                int tmpRand = Random.Range(0, 1);
+                if(tmpRand == 0)
+                    tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+                else
+                    tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
             }
             else
             {
-                tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, 0) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+                int tmpRand = Random.Range(0, 1);
+                if (tmpRand == 0)
+                    tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+                else
+                    tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
+
             }
         }
     }

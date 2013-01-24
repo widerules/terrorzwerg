@@ -6,6 +6,8 @@ public class Game_noMinimap : MonoBehaviour
     NetworkViewID NetID;
     public int Health = 100;
 
+
+    public GUISkin TerrorSkin;
     string ConnectionIP = "0.0.0.0"; //"131.130.238.217";
     int ConnectionPort = 6666;
     string InfoString = "";
@@ -42,7 +44,7 @@ public class Game_noMinimap : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        GUI.skin.font = GUIFont;
+
         GameData.instance.connectionFailed = false;
         GameData.instance.winningTeam = -1;
 
@@ -83,6 +85,7 @@ public class Game_noMinimap : MonoBehaviour
 
     void OnGUI()
     {
+        GUI.skin = TerrorSkin;
         Rect tmpFull = new Rect(0, 0, Screen.width, Screen.height);
         if (!InGame)
         {
@@ -113,7 +116,8 @@ public class Game_noMinimap : MonoBehaviour
             }
 			// back button
 			if( showReadyButton && GUI.Button(new Rect(Screen.width/2-400,Screen.height/2-100,200,100),"Back")){
-				 Application.LoadLevel("Client_Menu");
+                Network.CloseConnection(Network.connections[0], true);
+				Application.LoadLevel("Client_Menu");
 			}
         }
         else

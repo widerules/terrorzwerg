@@ -43,6 +43,8 @@ public class Player : MonoBehaviour {
 	public float LightReloadTimeSeconds = 2;
     public bool IsInRain = false;
 
+    public float ShowHealthTime = 0;
+
 	public NetworkPlayer nPlayer;
 	
 	public float Health = 100;
@@ -79,11 +81,16 @@ public class Player : MonoBehaviour {
 	}
 	
 	void OnGUI(){
-		var oColor = GUI.color;
-		GUI.color = Color.red;
-		GUI.DrawTexture(new Rect(screenPosition.x, Screen.height - screenPosition.y - 96, 96, 64),HealthTexture);
-		GUI.color = oColor;
-	}
+        if (ShowHealthTime > 0)
+        {
+            var oColor = GUI.color;
+            GUI.color = Color.red;
+            GUI.DrawTexture(new Rect(screenPosition.x - 20, Screen.height - screenPosition.y - 50, 40, 8), HealthTexture);
+            GUI.color = Color.green;
+            GUI.DrawTexture(new Rect(screenPosition.x - 20, Screen.height - screenPosition.y - 50, 40 * (Health * 0.01f), 8), HealthTexture);
+            GUI.color = oColor;
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -94,6 +101,15 @@ public class Player : MonoBehaviour {
         }
 		
 		screenPosition = Camera.main.WorldToScreenPoint(this.transform.position);
+
+        if (ShowHealthTime > 0)
+        {
+            ShowHealthTime -= Time.deltaTime;
+        }
+        else
+        {
+            ShowHealthTime = 0;
+        }
 
 		var tmpHorizontal = xAxis;
 		var tmpVertical = yAxis;
@@ -214,28 +230,39 @@ public class Player : MonoBehaviour {
 		
 	}
 
+    private float RainWetTime = 0;
     private void CheckRainZones()
     {
         var tmpRainzones = FindObjectsOfType(typeof(Rainzone));
-        IsInRain = false;
         foreach (Rainzone tmpZone in tmpRainzones)
         {
-            if ((new Vector2(tmpZone.transform.position.x, tmpZone.transform.position.z) - new Vector2(transform.position.x, transform.position.z)).magnitude < tmpZone.Size)
+            float tmpDistance = (new Vector2(tmpZone.transform.position.x, tmpZone.transform.position.z) - new Vector2(transform.position.x, transform.position.z)).magnitude;
+            if (tmpDistance < tmpZone.Size)
             {
                 if (IsInRain == false)
                 {
-                    gameScript.Player_PlaySound(nPlayer, "Extinguish");
+                    RainWetTime = 0;
+                    //gameScript.Player_PlaySound(nPlayer, "Extinguish");
                     LightOn = false;
                     IsInRain = true;
                 }
                 break;
+            }
+            else if (RainWetTime > 1.0f)
+            {
+                IsInRain = false;
+
+            }
+            else
+            {
+                RainWetTime += Time.deltaTime;
             }
         }
     }
 	
 	public void DoDamage(float iAmount)
 	{
-		
+        ShowHealthTime = 1;
 		Health -= iAmount;
 		gameScript.SendHealth((int)Health,nPlayer);
         if (Health <= 0 && !IsDead)
