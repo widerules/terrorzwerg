@@ -88,10 +88,17 @@ public class Game_noMinimap : MonoBehaviour
             if (GameData.instance.playerId == 0)
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Blue);
+				if ( GUI.Button(new Rect(10,10,50,50),"Team Blue - READY!") ){
+					networkView.RPC("Ready",RPCMode.Server);
+				}
+       				
             }
             else
             {
                 GUI.DrawTexture(tmpFull, TexPrepare_Red);
+				if ( GUI.Button(new Rect(10,10,50,50),"Team Red - READY!") ){
+					networkView.RPC("Ready",RPCMode.Server);
+				}
             }
         }
         else
@@ -112,7 +119,8 @@ public class Game_noMinimap : MonoBehaviour
             GUI.DrawTexture(tmpFull, TexConnectionFailed);
             if (ConnectionFailedTime <= 0)
             {
-                Application.LoadLevel("Client_Menu");
+                //Application.LoadLevel("Client_Menu");
+				InGame=false;
             }
         }
     }
@@ -251,6 +259,9 @@ public class Game_noMinimap : MonoBehaviour
 			InfoString = "Your Team LOST!";
 		}
 	}
+	[RPC]
+	void Ready(){}
+	
 	
     IEnumerator CollisionResponse()
     {
