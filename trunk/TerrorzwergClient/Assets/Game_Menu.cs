@@ -39,10 +39,12 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
         GameData.instance.playerId = -1;
     }
+	
     void Autofocus()
     {
         CameraDevice.Instance.SetFocusMode(CameraDevice.FocusMode.FOCUS_MODE_TRIGGERAUTO);
     }
+	
     // Update is called once per frame
     void Update()
     {
@@ -52,8 +54,9 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
             {
                 if (!string.IsNullOrEmpty(qrText))
                 {
-                    Application.LoadLevel("Client_noMinimap");
-                    qrText = null;
+                  //  Application.LoadLevel("Client_noMinimap");
+                  //  qrText = null;
+					// try to connect	
                 }
             }
         }
