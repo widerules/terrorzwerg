@@ -19,6 +19,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     public float UnityTexScale = 0.25f;
     Color32[] vCamColors;
     byte[] vDecodeBytes;
+	bool firstImage;
 
     // Use this for initialization
     void Start()
@@ -29,8 +30,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         {
             qcarBehaviour.RegisterTrackerEventHandler(this);
         }
-		CameraDevice.Instance.Deinit();
-		CameraDevice.Instance.Init();
+		firstImage=true;
         isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
         UnityCamTex = new Texture2D((int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).width * UnityTexScale), (int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).height * UnityTexScale));
         vCamColors = new Color32[UnityCamTex.width * UnityCamTex.height];
@@ -125,8 +125,13 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
 
             cameraFeed = CameraDevice.Instance.GetCameraImage(Image.PIXEL_FORMAT.GRAYSCALE);
             UpdateCamTex(cameraFeed);
-            tempText = new QRCodeReader().decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight).Text;
-            //tempText = new QRCodeReader().decode(vDecodeBytes, UnityCamTex.width, UnityCamTex.height).Text;
+            if(firstImage==false){
+				tempText = new QRCodeReader().decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight).Text;
+			}
+			else{
+				firstImage=false;
+			}
+			//tempText = new QRCodeReader().decode(vDecodeBytes, UnityCamTex.width, UnityCamTex.height).Text;
 
         }
         catch(Exception e)
