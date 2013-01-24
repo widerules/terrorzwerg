@@ -121,8 +121,8 @@ public class Game_noMinimap : MonoBehaviour
             GUI.DrawTexture(tmpFull, TexConnectionFailed);
             if (ConnectionFailedTime <= 0)
             {
-                //Application.LoadLevel("Client_Menu");
-				InGame=false;
+                Application.LoadLevel("Client_Menu");
+				//InGame=false;
             }
         }
     }
@@ -219,7 +219,7 @@ public class Game_noMinimap : MonoBehaviour
 	}
 
     [RPC]
-    void Player_PlaySound(string iSound)
+    void PlaySound(string iSound)
     {
         switch (iSound)
         {
@@ -268,6 +268,11 @@ public class Game_noMinimap : MonoBehaviour
 	}
 	[RPC]
 	void Ready(){}
+	
+	[RPC]
+	void GameRestarted(){
+		InGame=false;
+	}
 	
 	
     IEnumerator CollisionResponse()
