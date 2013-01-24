@@ -29,7 +29,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         {
             qcarBehaviour.RegisterTrackerEventHandler(this);
         }
-
+		CameraDevice.Instance.Deinit();
+		CameraDevice.Instance.Init();
         isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
         UnityCamTex = new Texture2D((int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).width * UnityTexScale), (int)(CameraDevice.Instance.GetVideoMode(CameraDevice.CameraDeviceMode.MODE_DEFAULT).height * UnityTexScale));
         vCamColors = new Color32[UnityCamTex.width * UnityCamTex.height];
@@ -149,8 +150,8 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
                 GameData.instance.playerId = int.Parse(qrText.Split(';')[1]);
 				// connect
 				
-				  Application.LoadLevel("Client_noMinimap");
-                  qrText = null;
+				Application.LoadLevel("Client_noMinimap");
+                qrText = null;
 				
             }
         }
