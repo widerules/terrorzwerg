@@ -36,7 +36,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         vDecodeBytes = new byte[UnityCamTex.width * UnityCamTex.height];
 
         InvokeRepeating("Autofocus", 1f, 2f);
-
+		qrText = "";
         GameData.instance.playerId = -1;
     }
 	
@@ -48,6 +48,7 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     // Update is called once per frame
     void Update()
     {
+		/*
         foreach (var tmpTouch in Input.touches)
         {
             if (tmpTouch.phase == TouchPhase.Ended)
@@ -56,11 +57,11 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
                 {
                   //Application.LoadLevel("Client_noMinimap");
                   //qrText = null;
-					// try to connect	
+				 // try to connect	
                 }
             }
         }
-
+		*/
         if (Input.GetKey(KeyCode.Escape))
         {
             Application.Quit();
