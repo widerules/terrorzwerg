@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
 	public Vector3 Position;
 	bool vLightOn;
 	public Light UnityLight;
+    public Light UnityLightLightOnly;
     public Light CollisionLight;
     public GameObject Dwarf;
     public Material BlueSkin;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour {
 		set {
 			vLightOn = value;
 			UnityLight.enabled = value;
+            UnityLightLightOnly.enabled = value;
 		}
 	}
 	public bool IsInEnemyTerritory = false;
@@ -38,7 +40,8 @@ public class Player : MonoBehaviour {
 	public float MaximumRunSpeedWithTreasure = 0.7f;
 	public float LightTimeSeconds = 5;
 	public float LightReloadTimeSeconds = 2;
-	
+    public bool IsInRain = false;
+
 	public NetworkPlayer nPlayer;
 	
 	public float Health = 100;
@@ -49,7 +52,6 @@ public class Player : MonoBehaviour {
     public bool DebugMode;
 	
 	public AudioClip SoundCapture;
-	public AudioClip SoundDropCoin;
 	
 	Collider FlagCollider;
 	Vector3 FlagStartPos;
@@ -138,7 +140,7 @@ public class Player : MonoBehaviour {
                 vWalkTime += Time.deltaTime * (tmpCurrentRunSpeed / 4.0f);
                 if (vWalkTime >= 0.25f)
                 {
-                    gameScript.Player_PlayWalkSound(nPlayer);
+                    gameScript.Player_PlaySound(nPlayer, "Walk");
                     vWalkTime = 0;
                     // Debug.Log("Step");
                 }
@@ -156,7 +158,7 @@ public class Player : MonoBehaviour {
                     HasFlag = true;
 
                     // Play capture sound
-                    AudioSource.PlayClipAtPoint(SoundCapture, Position);
+                    AudioSource.PlayClipAtPoint(SoundCapture, Camera.main.transform.position);
 
 
                     // Drop coins.
@@ -183,12 +185,13 @@ public class Player : MonoBehaviour {
 			IsInEnemyTerritory = false;			
 		}
 
+        CheckRainZones();
 
         if (DebugMode)
         {
             LightButton = Input.GetAxis("Light_" + TeamNumber);
         }
-        if (!LightOn && LightButton > 0.5f) //  && !HasFlag
+        if (!LightOn && LightButton > 0.5f && !IsInRain) //  && !HasFlag
 		{
 			StartCoroutine(SwitchOnLight());
 		}
@@ -196,6 +199,25 @@ public class Player : MonoBehaviour {
 		
 		
 	}
+
+    private void CheckRainZones()
+    {
+        var tmpRainzones = FindObjectsOfType(typeof(Rainzone));
+        IsInRain = false;
+        foreach (Rainzone tmpZone in tmpRainzones)
+        {
+            if ((new Vector2(tmpZone.transform.position.x, tmpZone.transform.position.z) - new Vector2(transform.position.x, transform.position.z)).magnitude < tmpZone.Size)
+            {
+                if (IsInRain == false)
+                {
+                    gameScript.Player_PlaySound(nPlayer, "Extinguish");
+                    LightOn = false;
+                    IsInRain = true;
+                }
+                break;
+            }
+        }
+    }
 	
 	public void DoDamage(float iAmount)
 	{
@@ -218,6 +240,7 @@ public class Player : MonoBehaviour {
             Dwarf.transform.FindChild("head_geo").renderer.material = BlueSkin;
             Dwarf.transform.FindChild("body").renderer.material = BlueSkin;
 
+            UnityLightLightOnly.color = new Color(0.5f, 0.5f, 0.8f, 1.0f);
             UnityLight.color = new Color(0.5f, 0.5f, 0.8f, 1.0f);
             TeamNumber = 0;
         }
@@ -226,15 +249,19 @@ public class Player : MonoBehaviour {
             Dwarf.transform.FindChild("head_geo").renderer.material = RedSkin;
             Dwarf.transform.FindChild("body").renderer.material = RedSkin;
 
+            UnityLightLightOnly.color = new Color(0.8f, 0.5f, 0.5f, 1.0f);
             UnityLight.color = new Color(0.8f, 0.5f, 0.5f, 1.0f);
             TeamNumber = 1;
         }
+        UnityLightLightOnly.shadows = LightShadows.None;
+        UnityLight.shadows = LightShadows.Soft;
+        LightOn = false;
     }
 	
 	IEnumerator Die()
 	{
         IsDead = true;
-        gameScript.Player_PlayDeathSound(nPlayer);
+        gameScript.Player_PlaySound(nPlayer, "Death");
 		LightOn = false;
 		
 		if(HasFlag && FlagCollider != null)
@@ -260,8 +287,8 @@ public class Player : MonoBehaviour {
 	{
 		while(HasFlag && FlagCollider != null)
 		{
-			yield return new WaitForSeconds(CoinDropRateDelayInSeconds);
-			AudioSource.PlayClipAtPoint(SoundDropCoin, Position);
+            yield return new WaitForSeconds(CoinDropRateDelayInSeconds);
+            gameScript.Player_PlaySound(nPlayer, "Coin");
 			
 			Instantiate(BaseCoin, Position, Quaternion.identity);
 		}
@@ -303,21 +330,21 @@ public class Player : MonoBehaviour {
 		GamePad.SetVibration(tmpIndex,0,0); // Set to 0 to stop vibration!!!
 		#endif		
 
-        CollisionLight.intensity = 1;
-        yield return new WaitForEndOfFrame();
-        CollisionLight.intensity = 0.9f;
-        yield return new WaitForEndOfFrame(); 
-        CollisionLight.intensity = 1;
-        yield return new WaitForEndOfFrame();
-        CollisionLight.intensity = 0.8f;
-        yield return new WaitForSeconds(0.2f);
-        CollisionLight.intensity = 0.7f;
-        yield return new WaitForSeconds(0.2f);
-        CollisionLight.intensity = 0.4f;
-        yield return new WaitForSeconds(0.2f);
-        CollisionLight.intensity = 0.2f;
-        yield return new WaitForSeconds(0.2f);
-        CollisionLight.intensity = 0;
+        //CollisionLight.intensity = 1;
+        //yield return new WaitForEndOfFrame();
+        //CollisionLight.intensity = 0.9f;
+        //yield return new WaitForEndOfFrame(); 
+        //CollisionLight.intensity = 1;
+        //yield return new WaitForEndOfFrame();
+        //CollisionLight.intensity = 0.8f;
+        //yield return new WaitForSeconds(0.2f);
+        //CollisionLight.intensity = 0.7f;
+        //yield return new WaitForSeconds(0.2f);
+        //CollisionLight.intensity = 0.4f;
+        //yield return new WaitForSeconds(0.2f);
+        //CollisionLight.intensity = 0.2f;
+        //yield return new WaitForSeconds(0.2f);
+        //CollisionLight.intensity = 0;
 
 
 		yield return false;
@@ -327,7 +354,7 @@ public class Player : MonoBehaviour {
 	{
 		LightOn = true;
         Fire.enableEmission = true;
-        gameScript.Player_PlayStrikingSound(nPlayer);
+        gameScript.Player_PlaySound(nPlayer, "Striking");
         yield return new WaitForSeconds(LightTimeSeconds);
         Fire.enableEmission = false;
 		LightOn = false;
