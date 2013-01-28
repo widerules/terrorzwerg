@@ -371,21 +371,13 @@ public class Game : MonoBehaviour {
 
     void OnGUIMenu()
     {
-        //GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
-        GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), MenuBackground, new Rect(0, 0, Screen.width / 500.0f, Screen.height/500.0f));
+        GUI.DrawTexture(new Rect(0,0,Screen.width, Screen.height), MenuBackground);
 
         if (Players.Count == PlayersReadyCount && PlayersReadyCount > 0)
         {
             int tmpTexId = Mathf.Clamp((int)PlayerConnectionTime, 0, (MenuNumerals.Length-1));
-            GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
+            GUI.DrawTexture(new Rect(Screen.width / 2 - 64, 230, 128, 128), MenuNumerals[tmpTexId]);
         }
-        //GUI.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
-        //GUI.Label(new Rect(0, 0, Screen.width, 200), "Terror Zwerg");
-        //GUI.color = Color.white;
-
-        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
-        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
-        GUI.DrawTexture(new Rect(Screen.width / 2 - 400, -100, 800, 400), MenuTitle, ScaleMode.ScaleAndCrop, true);
 
         GUI.BeginGroup(new Rect(Screen.width / 2 - QRCodeSize - QRDistance, QRHeight, 270, 290));
         GUI.DrawTexture(new Rect(0, 0, QRCodeSize, QRCodeSize), TextureLogPlayer0, ScaleMode.ScaleAndCrop, true);
@@ -427,7 +419,7 @@ public class Game : MonoBehaviour {
         //GUI.Label(new Rect(10, 30, 400, 20), "Team " + WinningTeam.ToString() + " has won!!!");
 
         int tmpTexId = Mathf.Clamp((int)GameOverTime, 0, (MenuNumerals.Length - 1));
-        GUI.DrawTexture(new Rect(Screen.width / 2 - 128, 130, 256, 256), MenuNumerals[tmpTexId]);
+        GUI.DrawTexture(new Rect(Screen.width / 2 - 64, 230, 128, 128), MenuNumerals[tmpTexId]);
     }
     #endregion
 
