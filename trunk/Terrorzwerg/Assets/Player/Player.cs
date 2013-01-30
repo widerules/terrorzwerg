@@ -37,7 +37,9 @@ public class Player : MonoBehaviour {
 	}
 	public bool IsInEnemyTerritory = false;
 	public bool HasFlag = false;
-	public float MaximumRunSpeed = 1;
+    private float RainWetTime = 0;
+    public float MaximumRainWetTimeInSeconds = 0.5f;
+    public float MaximumRunSpeed = 1;
 	public float MaximumRunSpeedWithTreasure = 0.7f;
 	public float LightTimeSeconds = 5;
 	public float LightReloadTimeSeconds = 2;
@@ -77,7 +79,8 @@ public class Player : MonoBehaviour {
 		screenPosition = Camera.main.WorldToScreenPoint(this.transform.position);
         SetPositionAndTeam(StartPosition, Team);
 		
-		gameScript=(Game)FindObjectOfType(typeof(Game));					
+		gameScript=(Game)FindObjectOfType(typeof(Game));
+        RainWetTime = MaximumRainWetTimeInSeconds;		
 	}
 	
 	void OnGUI(){
@@ -91,7 +94,8 @@ public class Player : MonoBehaviour {
             GUI.color = oColor;
         }
     }
-	
+
+    bool WetLightOn = false;
 	// Update is called once per frame
 	void Update () {
         if (DebugMode)
@@ -225,37 +229,65 @@ public class Player : MonoBehaviour {
 		{
 			StartCoroutine(SwitchOnLight());
 		}
-		
-		
+        else if (!LightOn && LightButton > 0.5f && IsInRain)
+        {
+            if (!WetLightOn)
+            {
+                gameScript.Player_PlaySound(nPlayer, "StrikingWet");
+                WetLightOn = true;
+            }
+        }
+        else
+        {
+            WetLightOn = false;
+        }
 		
 	}
 
-    private float RainWetTime = 0;
     private void CheckRainZones()
     {
         var tmpRainzones = FindObjectsOfType(typeof(Rainzone));
+        bool tmpInRain = false;
         foreach (Rainzone tmpZone in tmpRainzones)
         {
             float tmpDistance = (new Vector2(tmpZone.transform.position.x, tmpZone.transform.position.z) - new Vector2(transform.position.x, transform.position.z)).magnitude;
             if (tmpDistance < tmpZone.Size)
             {
-                if (IsInRain == false)
-                {
-                    RainWetTime = 0;
-                    //gameScript.Player_PlaySound(nPlayer, "Extinguish");
-                    LightOn = false;
-                    IsInRain = true;
-                }
+                tmpInRain = true;
                 break;
             }
-            else if (RainWetTime > 1.0f)
-            {
-                IsInRain = false;
+        }
 
+        if (tmpInRain && !IsInRain)
+        {
+            if (RainWetTime > 0)
+            {
+                RainWetTime -= Time.deltaTime;
+                gameScript.Player_SetWetness(nPlayer, 1.0f - RainWetTime * (1.0f / MaximumRainWetTimeInSeconds));
             }
             else
             {
+                if(LightOn)
+                    gameScript.Player_PlaySound(nPlayer, "Extinguish");
+
+                gameScript.Player_SetWetness(nPlayer, 1);
+                RainWetTime = 0;
+                LightOn = false;
+                IsInRain = true;
+            }
+        }
+        else if (!tmpInRain && IsInRain)
+        {
+            if (RainWetTime < MaximumRainWetTimeInSeconds)
+            {
                 RainWetTime += Time.deltaTime;
+                gameScript.Player_SetWetness(nPlayer, 1.0f - RainWetTime * (1.0f / MaximumRainWetTimeInSeconds));
+            }
+            else
+            {
+                IsInRain = false;
+                RainWetTime = MaximumRainWetTimeInSeconds;
+                gameScript.Player_SetWetness(nPlayer, 0);
             }
         }
     }
@@ -298,6 +330,8 @@ public class Player : MonoBehaviour {
         UnityLightLightOnly.shadows = LightShadows.None;
         UnityLight.shadows = LightShadows.Soft;
         LightOn = false;
+        HasFlag = false;
+        IsDead = false;
     }
 	
 	IEnumerator Die()

@@ -25,14 +25,17 @@ public class Game_noMinimap : MonoBehaviour
     float ConnectionFailedTime = 5;
 
     public AudioClip SoundStrikeMatch;
+    public AudioClip SoundStrikeMatchWet;
     public AudioClip SoundHurt;
     public AudioClip SoundCoin;
     public AudioClip SoundExtinguish;
     public AudioClip[] SoundDie;
 	public AudioClip[] SoundWalk;
-	
+
+    private float Wetness = 0;
 
     public Texture StrikingTexture;
+    public Texture StrikingTextureWet;
     public Texture TexPrepare_Red;
     public Texture TexPrepare_Blue;
     public Texture TexWon;
@@ -99,7 +102,8 @@ public class Game_noMinimap : MonoBehaviour
             {
 				//ready button
                 GUI.DrawTexture(tmpFull, TexPrepare_Blue);
-				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,200,100),"Team Blue - READY!") ){
+                if (showReadyButton && GUI.Button(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 100, 400, 80), "Team Blue - READY!"))
+                {
 					networkView.RPC("Ready",RPCMode.Server);
 					showReadyButton=false;
 				}
@@ -109,13 +113,15 @@ public class Game_noMinimap : MonoBehaviour
             {
 				// ready button
                 GUI.DrawTexture(tmpFull, TexPrepare_Red);
-				if ( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2-50,200,100),"Team Red - READY!") ){
-					networkView.RPC("Ready",RPCMode.Server);
+                if (showReadyButton && GUI.Button(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 100, 400, 80), "Team Red - READY!"))
+                {
+                    networkView.RPC("Ready", RPCMode.Server);
 					showReadyButton=false;
 				}
             }
 			// back button
-			if( showReadyButton && GUI.Button(new Rect(Screen.width/2-100,Screen.height/2+100,200,100),"Back")){
+            if (showReadyButton && GUI.Button(new Rect(Screen.width / 2 - 200, Screen.height / 2 + 30, 400, 80), "Back"))
+            {
                 Network.CloseConnection(Network.connections[0], true);
 				Application.LoadLevel("Client_Menu");
 			}
@@ -123,6 +129,13 @@ public class Game_noMinimap : MonoBehaviour
         else
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), StrikingTexture);
+
+            if (Wetness > 0)
+            {
+                GUI.color = new Color(1, 1, 1, Wetness);
+                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), StrikingTextureWet, ScaleMode.StretchToFill, true);
+                GUI.color = new Color(1, 1, 1, 1);
+            }
         }
 		
         if (!showReadyButton && GameData.instance.winningTeam == GameData.instance.playerId)
@@ -249,7 +262,10 @@ public class Game_noMinimap : MonoBehaviour
 	            case "Striking":
 	                AudioSource.PlayClipAtPoint(SoundStrikeMatch, camera.transform.position, 1);
 	                break;
-	            case "Hurt":
+                case "StrikingWet":
+                    AudioSource.PlayClipAtPoint(SoundStrikeMatchWet, camera.transform.position, 1);
+                    break;
+                case "Hurt":
 	                AudioSource.PlayClipAtPoint(SoundHurt, camera.transform.position, 1);
 	                break;
 	            case "Death":
@@ -297,8 +313,14 @@ public class Game_noMinimap : MonoBehaviour
 	void GameRestarted(){
 		InGame=false;
 		showReadyButton=true;
+        GameData.instance.winningTeam = -1;
 	}
-	
+
+    [RPC]
+    void ChangeWetness(float iWetness)
+    {
+        Wetness = iWetness;
+    }
 	
     IEnumerator CollisionResponse()
     {
