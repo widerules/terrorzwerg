@@ -111,10 +111,12 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
     {
         Rect tmpFull = new Rect(0,0, Screen.width,Screen.height);
         float tmpAspect = (float)UnityCamTex.width / (float)UnityCamTex.height;
-        float tmpCamWidth = Screen.width * 0.45f;
+        float tmpCamWidth = Screen.width * 0.48f;
         float tmpCamHeight = tmpCamWidth / tmpAspect;
-        Rect tmpCam = new Rect(Screen.width/2-tmpCamWidth*0.5f, Screen.height/2-tmpCamHeight*0.25f, tmpCamWidth, tmpCamHeight);
+        Rect tmpCam = new Rect(Screen.width / 2 - tmpCamWidth * 0.5f + 20, Screen.height / 2 - tmpCamHeight * 0.4f, tmpCamWidth, tmpCamHeight);
         //GUI.Label(new Rect(10, 10, 400, 20), "Hover over QR code: " + GameData.instance.ipAdress + ":" + GameData.instance.port + " " + GameData.instance.playerId);
+        GUI.DrawTexture(tmpCam, UnityCamTex);
+
         if (GameData.instance.playerId == 0)
         {
             GUI.DrawTexture(tmpFull, TexMainMenuBlue);
@@ -127,7 +129,6 @@ public class Game_Menu : MonoBehaviour, ITrackerEventHandler
         {
             GUI.DrawTexture(tmpFull, TexMainMenu);
         }
-        GUI.DrawTexture(tmpCam, UnityCamTex);
 
         GUI.Label(new Rect(20, 20, 1000, 200), vDebugText);
 

@@ -10,9 +10,13 @@ public class Rainzone : MonoBehaviour {
         get { return vSize; }
         set { 
             vSize = value;
-
+            print("...confirming rain zone size change to " + value);
             // Change size of the particle system and the collider.
-            transform.GetComponentInChildren<ParticleSystem>().animation["RainZoneSize"].time = Size;
+            AnimationState tmpAnim = transform.GetComponentInChildren<ParticleSystem>().animation["RainZoneSize"];
+            tmpAnim.time = Size;
+            transform.GetComponentInChildren<ParticleSystem>().animation.Sample();
+            transform.GetComponentInChildren<Projector>().orthographicSize = Size;
+            transform.GetComponentInChildren<Projector>().orthoGraphicSize = Size;
         }
     }
 

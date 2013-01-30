@@ -38,11 +38,11 @@ public class Game : MonoBehaviour {
 	public Player basePlayer;
     System.Collections.Generic.Dictionary<NetworkPlayer, Player> Players = new System.Collections.Generic.Dictionary<NetworkPlayer,Player>();
 
-    public float MaxPlayerConnectionTime = 10;
+    public float MaxPlayerConnectionTime = 5;
     public float MaxGameOverTime = 10;
 
     int PlayersReadyCount = 0;
-    float PlayerConnectionTime = 10;
+    float PlayerConnectionTime = 5;
     float GameOverTime = 10;
     Texture2D TextureLogPlayer0;
     Texture2D TextureLogPlayer1;
@@ -52,6 +52,9 @@ public class Game : MonoBehaviour {
     public Texture2D MenuRedWon;
 
     public Texture2D[] MenuNumerals;
+
+    public Texture2D IngameOverlay;
+
 
     public Color QRCodeForecolor;
     public Color QRCodeBackcolor;
@@ -239,7 +242,7 @@ public class Game : MonoBehaviour {
 				stealingTeam = " "+tmpPlayer.Team.ToString()+" has";
 			}
 			else if(tmpPlayer.HasFlag){
-				stealingTeam = "s 1 and 2 have";
+				stealingTeam = "s Blue and Red have";
 			}
 			if(tmpPlayer.HasFlag && !tmpPlayer.IsInEnemyTerritory)
 			{
@@ -294,8 +297,27 @@ public class Game : MonoBehaviour {
         var tmpRainzones = FindObjectsOfType(typeof(Rainzone));
         foreach (Rainzone tmpZone in tmpRainzones)
         {
+            if (Players.Count >= 6)
+            {
+                RainZoneSize = 8;
+            }
+            else if (Players.Count >= 4)
+            {
+                RainZoneSize = 6;
+            }
+            else
+            {
+                RainZoneSize = 4;
+            }
+            print("Changed rain zone size to " + RainZoneSize);
             tmpZone.Size = RainZoneSize;
         }
+
+        foreach (var tmpPlayer in Players)
+        {
+            SetRandomPlayerStartPosition(tmpPlayer.Value, tmpPlayer.Value.Team);
+        }
+
     }
 	
 	void RandomizeObstacles(){
@@ -403,6 +425,19 @@ public class Game : MonoBehaviour {
         ////tmpInfoText = ipadress;
 
         //GUI.Label(new Rect(Screen.width / 2 - 100, 10, 200, 30), tmpInfoText);
+
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), IngameOverlay, ScaleMode.StretchToFill, true);
+
+        if (noFlag)
+        {
+            tmpInfoText = "Capture the treasure!";
+        }
+        else
+        {
+            tmpInfoText = "Team" + stealingTeam + " the treasure!";
+        }
+        GUI.Label(new Rect(Screen.width / 2 - (Screen.width * 460 / 1920), (Screen.height * 1080 / 1200), Screen.width * 920 / 1920, Screen.height * 80 / 1200), tmpInfoText);
+
     }
 
     void OnGUIGameOver()
@@ -462,28 +497,34 @@ public class Game : MonoBehaviour {
         Player.eTeam tmpTeam = (Player.eTeam)iTeam;
         var tmpPlayers = FindObjectsOfType(typeof(Player));
 
-        Vector2 tmpRandPos = Random.insideUnitCircle * 2;
         Player tmpPlayer = null;
         if (Players.TryGetValue(tmpNetworkInfo.sender, out tmpPlayer))
         {
-            if(tmpTeam == Player.eTeam.Blue)
-            {
-                int tmpRand = Random.Range(0, 1);
-                if(tmpRand == 0)
-                    tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
-                else
-                    tmpPlayer.SetPositionAndTeam(new Vector3(-22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
-            }
-            else
-            {
-                int tmpRand = Random.Range(0, 1);
-                if (tmpRand == 0)
-                    tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
-                else
-                    tmpPlayer.SetPositionAndTeam(new Vector3(22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), tmpTeam);
-
-            }
+            SetRandomPlayerStartPosition(tmpPlayer, tmpTeam);         
         }
+    }
+
+    public void SetRandomPlayerStartPosition(Player iPlayer, Player.eTeam iTeam)
+    {
+        Vector2 tmpRandPos = Random.insideUnitCircle * 2;
+        if (iTeam == Player.eTeam.Blue)
+        {
+            int tmpRand = Random.Range(0, 1);
+            if (tmpRand == 0)
+                iPlayer.SetPositionAndTeam(new Vector3(-22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), iTeam);
+            else
+                iPlayer.SetPositionAndTeam(new Vector3(-22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), iTeam);
+        }
+        else
+        {
+            int tmpRand = Random.Range(0, 1);
+            if (tmpRand == 0)
+                iPlayer.SetPositionAndTeam(new Vector3(22, 1, 5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), iTeam);
+            else
+                iPlayer.SetPositionAndTeam(new Vector3(22, 1, -5) + new Vector3(tmpRandPos.x, 0, tmpRandPos.y), iTeam);
+
+        }
+
     }
 
     [RPC]
@@ -551,6 +592,16 @@ public class Game : MonoBehaviour {
     public void Player_PlaySound(NetworkPlayer iPlayer, string iSound)
     {
         networkView.RPC("PlaySound", iPlayer, iSound);
+    }
+
+    public void Player_SetWetness(NetworkPlayer iPlayer, float iWetness)
+    {
+        networkView.RPC("ChangeWetness", iPlayer, iWetness);
+    }
+
+    [RPC]
+    void ChangeWetness(float iWetness)
+    {
     }
 
     [RPC]
