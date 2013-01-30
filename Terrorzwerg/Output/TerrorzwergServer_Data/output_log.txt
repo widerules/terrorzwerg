@@ -1,0 +1,126 @@
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 9.0c [nvd3dum.dll 9.18.13.1090]
+    Renderer: NVIDIA GeForce GTX 280
+    Vendor:   NVIDIA
+    VRAM:     1005 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=0 DF24=0 INTZ=1 RAWZ=0 NULL=1 RESZ=0 SlowINTZ=0
+desktop: 1680x1050 59Hz; virtual: 1680x1050 at 0,0
+<I> Initializing (RawInput).
+<RI> Input initialized.
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\newzxing.dll (this message is harmless)
+Loading C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\newzxing.dll into Unity Child Domain
+Platform assembly: C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\XInputDotNetPure.dll (this message is harmless)
+Loading C:\programming\TerrorZwerg\Terrorzwerg\Output\TerrorzwergServer_Data\Managed\XInputDotNetPure.dll into Unity Child Domain
+- Completed reload, in  0.078 seconds
+Using NAT.
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Failed to initialize network interface. Is the listen port already in use?
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Network/NetworkManager.cpp Line: 202)
+
+Server: CreateSocketOrThreadFailure
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Using public address.
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Server started at: 192.168.1.117:5565 NAT GUID: 986288327071654815
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Player connected: 192.168.1.129:55896
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Player connected: 192.168.1.129:55468
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+DllNotFoundException: XInputInterface
+  at (wrapper managed-to-native) XInputDotNetPure.Imports:XInputGamePadSetState (uint,single,single)
+  at XInputDotNetPure.GamePad.SetVibration (PlayerIndex playerIndex, Single leftMotor, Single rightMotor) [0x00000] in <filename unknown>:0 
+  at Player+<CollisionResponse>c__Iterator2.MoveNext () [0x00000] in <filename unknown>:0 
+UnityEngine.MonoBehaviour:StartCoroutine_Auto(IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+Player:OnCollisionEnter(Collision)
+ 
+(Filename:  Line: -1)
+
+Skipped rendering frame because GfxDevice is in invalid state (device lost)
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Misc/Player.cpp Line: 1591)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+Skipped rendering frame because GfxDevice is in invalid state (device lost)
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Misc/Player.cpp Line: 1591)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+Player connected: 192.168.1.129:48122
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+DllNotFoundException: XInputInterface
+  at (wrapper managed-to-native) XInputDotNetPure.Imports:XInputGamePadSetState (uint,single,single)
+  at XInputDotNetPure.GamePad.SetVibration (PlayerIndex playerIndex, Single leftMotor, Single rightMotor) [0x00000] in <filename unknown>:0 
+  at Player+<CollisionResponse>c__Iterator2.MoveNext () [0x00000] in <filename unknown>:0 
+UnityEngine.MonoBehaviour:StartCoroutine_Auto(IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+Player:OnCollisionEnter(Collision)
+ 
+(Filename:  Line: -1)
+
+Skipped rendering frame because GfxDevice is in invalid state (device lost)
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Misc/Player.cpp Line: 1591)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+Skipped rendering frame because GfxDevice is in invalid state (device lost)
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Misc/Player.cpp Line: 1591)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+Skipped rendering frame because GfxDevice is in invalid state (device lost)
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/Misc/Player.cpp Line: 1591)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+Player connected: 192.168.1.129:38670
+ 
+(Filename: C:/BuildAgent/work/b0bcff80449a48aa/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
