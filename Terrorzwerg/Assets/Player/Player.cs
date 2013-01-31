@@ -366,7 +366,7 @@ public class Player : MonoBehaviour {
             yield return new WaitForSeconds(CoinDropRateDelayInSeconds);
             gameScript.Player_PlaySound(nPlayer, "Coin");
 			
-			Instantiate(BaseCoin, Position, Quaternion.identity);
+			Instantiate(BaseCoin, Position - new Vector3(0, 0.98f, 0), Quaternion.identity);
 		}
 	}
 
