@@ -89,8 +89,8 @@ public class Game : MonoBehaviour {
     private void InitializeMenu()
     {
 		//http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=127.0.0.1:666;0
-        TextureLogPlayer0 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";0", QRCodeSize);
-        TextureLogPlayer1 = CreateQR("http://www.unet.univie.ac.at/~a0701760/terrorzwerg/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";1", QRCodeSize);
+        TextureLogPlayer0 = CreateQR("http://terrorzwerg.googlecode.com/files/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";0", QRCodeSize);
+        TextureLogPlayer1 = CreateQR("http://terrorzwerg.googlecode.com/files/TerrorzwergClient.apk?Zwegdata=" + IPAddress + ":" + Port + "," + NetworkGUID + ";1", QRCodeSize);
     }
 
     Texture2D CreateQR(string iQRString, int iSize)
