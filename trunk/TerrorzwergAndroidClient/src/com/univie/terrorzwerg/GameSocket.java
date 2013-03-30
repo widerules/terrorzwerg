@@ -15,14 +15,14 @@ public class GameSocket{
 
 	private static GameSocket oInstance = null;
 	private static final String TAG = "TerrorZwerg";
-	private Socket gameSock = null;
+	private Socket oGameSock = null;
 	private PrintWriter output = null;
 	private BufferedReader input = null;
 	boolean conn = false;
 	private ReceiveListener rcl = null;
 	private GameSocket(){};
 	private AsyncTask<Void, String, Void> oReceiver = null;
-	
+	private int iTimeOut = 2000; // two sec timeout
 	
 	public interface ReceiveListener{
 		/**
@@ -52,7 +52,7 @@ public class GameSocket{
 	 * @param params Like Team number ... or something else - seperated with ;
 	 */
 	public void  connectTo(String ip,int port,String params){
-		gameSock = null;
+		oGameSock = null;
 		conn = false;
 		Receive slhReceiver = new Receive();
 		slhReceiver.ip = ip;
@@ -62,6 +62,7 @@ public class GameSocket{
 	}
 	
 	public void write(String txt){
+		Log.d(TAG,"writing message: "+txt);
 		output.write(txt+"\n");
 		output.flush();
 //		return true;
@@ -79,30 +80,44 @@ public class GameSocket{
         protected void onPreExecute() {
             Log.d(TAG, "onPreExecute");
         }
-
+        
+        //This runs on a different thread
         @Override
-        protected Void doInBackground(Void... params) { //This runs on a different thread
-        	while(gameSock == null){
+        protected Void doInBackground(Void... params) { 
+        	int iFailCount = 0;
+        	while(oGameSock == null){
     			try {
     				
     				Log.d(TAG, "trying to open socket "+ip+":"+String.valueOf(port));
-    				gameSock = new Socket(ip,port);
+    				oGameSock = new Socket(ip,port);
     				Log.d(TAG,"opend socket");
     				
     			} catch (UnknownHostException e) {
     				// TODO Auto-generated catch block
     				Log.e(TAG, e.toString());
+    				if(++iFailCount>3)
+    				{
+    					publishProgress("fail");
+    					//return null;
+    				}
+    				
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				Log.e(TAG,e.toString());
+    				if(++iFailCount>3)
+    				{
+    					publishProgress("fail");
+    					//return null;
+    				}
+
     			}
     		}
     		try {
-    			OutputStream out = gameSock.getOutputStream();
+    			OutputStream out = oGameSock.getOutputStream();
     			output = new PrintWriter(out);
     			Log.d(TAG,"Sending hello");
     			write("Hello;"+para);
-    			input = new BufferedReader(new InputStreamReader(gameSock.getInputStream()));
+    			input = new BufferedReader(new InputStreamReader(oGameSock.getInputStream()));
     			Log.d(TAG,"receiving conn");
     			String tst = recv();
     			if(tst.contains("Hey"))
@@ -114,6 +129,7 @@ public class GameSocket{
     		catch (IOException e) {
     			// TODO Auto-generated catch block
     			Log.e( TAG,e.toString() );
+    			
     		}
     		// start receiver
     		if(conn == true)
@@ -130,6 +146,10 @@ public class GameSocket{
         		if(ret != "-1")
         		{
         			publishProgress(ret);
+        		}
+        		else
+        		{
+        			publishProgress("fail");
         		}
         	}
         }
@@ -174,6 +194,21 @@ public class GameSocket{
 		Log.d(TAG, "return In rev: "+ret);
 
 		return ret;
+		
+	}
+
+	public void disconnect()
+	{
+		oReceiver.cancel( true );
+		write( "Disconnect" );
+		try
+		{
+			oGameSock.close();
+		} catch ( IOException e )
+		{
+			// TODO Auto-generated catch block
+			Log.e( TAG, "socket closing failed" );
+		}
 		
 	}
 	

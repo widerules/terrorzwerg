@@ -10,6 +10,7 @@
         android:layout_height="fill_parent"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:focusable="true"
         android:src="@drawable/connection_failed" />
 
     <Button

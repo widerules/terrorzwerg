@@ -80,6 +80,7 @@ public class QRCodeReaderActivity extends Activity{
 		public void validQRcode( String QRText )
 		{
 			Intent gameIntent = new	Intent(oAct,com.univie.terrorzwerg.GameActivity.class);
+			gameIntent.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
 			gameIntent.putExtra("TERROR_STRING", QRText);
 			oAct.startActivity(gameIntent);
 		}
@@ -99,6 +100,9 @@ public class QRCodeReaderActivity extends Activity{
 		  oTerrorCam.stop();
 	  }
 	  
-	 
+	    public void onBackPressed() {
+	        Log.d(TAG, "onBackPressed Called");
+	        finish(); 
+	    }  
 
 }

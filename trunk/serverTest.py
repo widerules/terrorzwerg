@@ -26,15 +26,20 @@ def startDatServer(whatever):
     time.sleep(1)
     print("send connected")
     client.send("connected;0")
-    time.sleep(2)
+    tst = ""
+    while 1:
+        print("wariting for message")
+        tst = str(client.recv(4096))
+        print(tst)
+        if( "Ready" in tst ):
+            break
     print("send start")
     client.send("start;0")
     time.sleep(2)
     print("send sound")
     client.send("sound;walk")
-    time.sleep(200)
     while 1:
-        print(str(daServSock.recv(4096)))
+        print(str(client.recv(4096)))
 
 
 thread.start_new_thread(startDatServer,("whatever",))
